@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   description:
     "Aplikasi pencatatan keuangan pribadi offline. Catat pemasukan dan pengeluaran dengan mudah.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
