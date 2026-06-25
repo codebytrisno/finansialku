@@ -44,9 +44,11 @@ npm run build
 
 Static output is in the `out/` directory.
 
-## Desktop Build (Tauri)
+## Android Build (Capacitor)
 
 ```bash
-npm run tauri dev     # development
-npm run tauri build   # production build
+npm run build
+npx cap sync
+npx cap open android   # open in Android Studio
+npx cap run android    # run on device
 ```

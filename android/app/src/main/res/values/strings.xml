@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FinansialKu</string>
+    <string name="title_activity_main">FinansialKu</string>
+    <string name="package_name">com.finansialku.app</string>
+    <string name="custom_url_scheme">com.finansialku.app</string>
+</resources>
