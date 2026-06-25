@@ -1,6 +1,10 @@
 # FinansialKu
 
-A fully offline personal finance tracking app. Built with Next.js and Tauri.
+A fully offline personal finance tracking app. Built with Next.js + Capacitor.
+
+## Download APK
+
+[![Download APK v1.0.0](https://img.shields.io/badge/Download-APK%20v1.0.0-brightgreen?style=for-the-badge&logo=android)](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk)
 
 ## Features
 
@@ -25,7 +29,7 @@ A fully offline personal finance tracking app. Built with Next.js and Tauri.
 | Language | TypeScript |
 | Icons | react-icons (Lucide) |
 | Charts | Custom SVG |
-| Desktop | Tauri 2 |
+| Mobile | Capacitor 8 |
 
 ## Getting Started
 
@@ -52,3 +56,5 @@ npx cap sync
 npx cap open android   # open in Android Studio
 npx cap run android    # run on device
 ```
+
+> Already have the APK? Download the latest release [here](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk).
