@@ -4,7 +4,7 @@ A fully offline personal finance tracking app. Built with Next.js + Capacitor.
 
 ## Download APK
 
-[![Download APK v1.1.0](https://img.shields.io/badge/Download-APK%20v1.1.0-brightgreen?style=for-the-badge&logo=android)](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk)
+[![Download APK v1.1.0](https://img.shields.io/badge/Download-APK%20v1.1.0-brightgreen?style=for-the-badge&logo=android)](https://github.com/codebytrisno/finansialku/releases/download/v1.1.0/FinansialKu-v1.1.0.apk)
 
 ## Features
 
@@ -62,4 +62,4 @@ npx cap open android   # open in Android Studio
 npx cap run android    # run on device
 ```
 
-> Already have the APK? Download the latest release [here](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk).
+> Already have the APK? Download the latest release [here](https://github.com/codebytrisno/finansialku/releases/download/v1.1.0/FinansialKu-v1.1.0.apk).
