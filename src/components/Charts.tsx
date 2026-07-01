@@ -1,7 +1,5 @@
 "use client";
 
-import { type TransactionType } from "@/lib/types";
-
 interface MiniChartProps {
   data: { label: string; value: number }[];
   height?: number;
@@ -11,7 +9,7 @@ interface MiniChartProps {
 export function BarChart({
   data,
   height = 120,
-  color = "#10b981",
+  color = "#00685f",
 }: MiniChartProps) {
   const maxVal = Math.max(...data.map((d) => d.value), 1);
 
@@ -24,7 +22,7 @@ export function BarChart({
             key={i}
             className="group relative flex flex-1 flex-col items-center justify-end"
           >
-            <span className="mb-1 text-[10px] font-medium text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="mb-1 text-label-sm text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100">
               {d.value.toLocaleString()}
             </span>
             <div
@@ -34,7 +32,7 @@ export function BarChart({
                 backgroundColor: color,
               }}
             />
-            <span className="mt-1 text-[10px] text-zinc-500 dark:text-zinc-400">
+            <span className="mt-1 text-label-sm text-on-surface-variant">
               {d.label}
             </span>
           </div>
@@ -59,20 +57,19 @@ export function DonutChart({
   if (total === 0) {
     return (
       <div
-        className="relative mx-auto flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800"
+        className="relative mx-auto flex items-center justify-center rounded-full bg-surface-container-highest"
         style={{ width: size, height: size }}
       >
         <div className="text-center">
-          <p className="text-sm font-bold text-zinc-400">0</p>
+          <p className="text-sm font-bold text-on-surface-variant">0</p>
           {totalLabel && (
-            <p className="text-xs text-zinc-400">{totalLabel}</p>
+            <p className="text-xs text-outline">{totalLabel}</p>
           )}
         </div>
       </div>
     );
   }
 
-  // Precompute cumulative offsets for each segment
   const radius = size / 2 - 8;
   const circumference = 2 * Math.PI * radius;
   const segments = data.reduce<{ percentage: number; strokeLen: number; offset: number }[]>(
@@ -114,11 +111,11 @@ export function DonutChart({
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          <p className="text-lg font-bold text-on-surface">
             {total.toLocaleString()}
           </p>
           {totalLabel && (
-            <p className="text-xs text-zinc-500">{totalLabel}</p>
+            <p className="text-xs text-on-surface-variant">{totalLabel}</p>
           )}
         </div>
       </div>
@@ -143,27 +140,27 @@ export function DonutLegend({ data, currencySymbol = "Rp" }: DonutLegendProps) {
   if (data.length === 0) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-stack-xs">
       {data.map((d, i) => (
-        <div key={i} className="flex items-center gap-3">
+        <div key={i} className="flex items-center gap-stack-sm">
           <div
             className="h-3 w-3 shrink-0 rounded-full"
             style={{ backgroundColor: d.categoryColor }}
           />
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-label-md font-bold text-on-surface">
               {d.categoryName}
             </p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-label-sm text-on-surface-variant">
               {d.count} transaksi
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            <p className="text-sm font-semibold text-on-surface">
               {currencySymbol}
               {d.total.toLocaleString()}
             </p>
-            <p className="text-xs text-zinc-400">{d.percentage}%</p>
+            <p className="text-label-sm text-on-surface-variant">{d.percentage}%</p>
           </div>
         </div>
       ))}

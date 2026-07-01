@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getAccounts,
   getTransfers,
@@ -27,25 +27,18 @@ import {
   formatCurrency,
   formatDate,
   getToday,
-  getCurrentMonth,
+  getCurrencySymbol,
+  formatNumberInput,
+  parseNumberInput,
   calculateNextDate,
   getRecurringLabel,
-  getAccountTypeLabel,
 } from "@/lib/utils";
 import { Icon } from "@/lib/icons";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
 import Modal from "@/components/Modal";
-import {
-  LuArrowRightLeft,
-  LuPlus,
-  LuTrash2,
-  LuRepeat2,
-  LuCalendarClock,
-  LuChevronLeft,
-  LuChevronRight,
-  LuArrowUp,
-  LuArrowDown,
-  LuClock,
-} from "react-icons/lu";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useToast } from "@/components/Toast";
+import { Skeleton } from "@/components/Skeleton";
 
 type Tab = "transfer" | "recurring";
 
@@ -68,6 +61,7 @@ const RECURRING_LABELS = [
 ];
 
 export default function TransfersPage() {
+  const { showToast } = useToast();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [recurrings, setRecurrings] = useState<RecurringTransaction[]>([]);
@@ -78,7 +72,6 @@ export default function TransfersPage() {
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [editRecurring, setEditRecurring] = useState<RecurringTransaction | null>(null);
 
-  // Transfer form
   const [transferFrom, setTransferFrom] = useState("");
   const [transferTo, setTransferTo] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
@@ -86,7 +79,6 @@ export default function TransfersPage() {
   const [transferDate, setTransferDate] = useState(getToday());
   const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
 
-  // Recurring form
   const [recType, setRecType] = useState<RecurringType>("expense");
   const [recLabel, setRecLabel] = useState("other");
   const [recAmount, setRecAmount] = useState("");
@@ -99,6 +91,9 @@ export default function TransfersPage() {
   const [recStartDate, setRecStartDate] = useState(getToday());
   const [recNote, setRecNote] = useState("");
   const [recErrors, setRecErrors] = useState<Record<string, string>>({});
+  const [deleteTransferId, setDeleteTransferId] = useState<string | null>(null);
+  const [deleteRecurringId, setDeleteRecurringId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(() => {
     setAccounts(getAccounts());
@@ -109,12 +104,13 @@ export default function TransfersPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
+    requestAnimationFrame(() => {
+      loadData();
+      setLoading(false);
+    });
   }, [loadData]);
 
   const activeAccounts = accounts.filter((a) => a.isActive);
-
-  // ─── Transfer ─────────────────────────────────────────────────
 
   const resetTransferForm = () => {
     const accs = activeAccounts;
@@ -147,16 +143,12 @@ export default function TransfersPage() {
     });
     setShowTransferForm(false);
     loadData();
+    showToast("Transfer berhasil ditambahkan");
   };
 
   const handleDeleteTransfer = (id: string) => {
-    if (confirm("Yakin ingin menghapus transfer ini?")) {
-      deleteTransfer(id);
-      loadData();
-    }
+    setDeleteTransferId(id);
   };
-
-  // ─── Recurring ────────────────────────────────────────────────
 
   const resetRecurringForm = (type?: RecurringType) => {
     const t = type || recType;
@@ -230,8 +222,10 @@ export default function TransfersPage() {
     };
     if (editRecurring) {
       updateRecurringTransaction(editRecurring.id, data);
+      showToast("Transaksi berulang berhasil diperbarui");
     } else {
       addRecurringTransaction(data);
+      showToast("Transaksi berulang berhasil ditambahkan");
     }
     setShowRecurringForm(false);
     loadData();
@@ -240,16 +234,13 @@ export default function TransfersPage() {
   const handleToggleRecurring = (r: RecurringTransaction) => {
     updateRecurringTransaction(r.id, { active: !r.active });
     loadData();
+    showToast(r.active ? "Transaksi berulang dinonaktifkan" : "Transaksi berulang diaktifkan");
   };
 
   const handleDeleteRecurring = (id: string) => {
-    if (confirm("Yakin ingin menghapus transaksi berulang ini?")) {
-      deleteRecurringTransaction(id);
-      loadData();
-    }
+    setDeleteRecurringId(id);
   };
 
-  // Sort transfers by date desc
   const sortedTransfers = [...transfers].sort((a, b) => b.transactionDate.localeCompare(a.transactionDate));
   const sortedRecurrings = [...recurrings].sort((a, b) => b.nextDate.localeCompare(a.nextDate));
 
@@ -258,47 +249,59 @@ export default function TransfersPage() {
   const incomeCategories = categories.filter((c) => c.type === "income");
   const expenseCategories = categories.filter((c) => c.type === "expense");
 
+  const cur = settings.currency;
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-24 lg:pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-            Transfer & Berulang
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+    <div className="space-y-stack-lg pb-24 lg:pb-8">
+      {loading && (
+        <>
+          <div className="sticky top-0 z-30 -mx-gutter flex min-h-[56px] items-center justify-between border-b border-outline-variant bg-surface-container-low px-gutter dark:bg-inverse-surface">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-3 w-36" />
+            </div>
+          </div>
+          <Skeleton className="h-10 rounded-xl" />
+          <Skeleton className="h-14 rounded-2xl" />
+          <Skeleton className="h-20 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
+        </>
+      )}
+      {!loading && (<>
+      <div className="sticky top-0 z-30 -mx-gutter flex min-h-[56px] items-center justify-between border-b border-outline-variant bg-surface-container-low px-gutter dark:bg-inverse-surface">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-label-md sm:text-headline-md font-bold text-on-surface truncate">Transfer & Berulang</h1>
+          <p className="text-[11px] sm:text-label-sm text-on-surface-variant truncate">
             Transfer antar akun & transaksi otomatis
           </p>
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
+      <div className="flex gap-stack-xs rounded-xl bg-surface-container p-1">
         <button
           onClick={() => setActiveTab("transfer")}
-          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-all ${
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-label-md font-medium transition-all ${
             activeTab === "transfer"
-              ? "bg-white text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-300"
-              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
+              ? "bg-surface-container-low text-primary shadow-sm"
+              : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          <LuArrowRightLeft size={16} />
+          <MaterialSymbol icon="swap_horiz" size={18} fill={activeTab === "transfer"} />
           <span>Transfer</span>
         </button>
         <button
           onClick={() => setActiveTab("recurring")}
-          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-all ${
+          className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-label-md font-medium transition-all ${
             activeTab === "recurring"
-              ? "bg-white text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-300"
-              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
+              ? "bg-surface-container-low text-primary shadow-sm"
+              : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          <LuRepeat2 size={16} />
+          <MaterialSymbol icon="repeat" size={18} fill={activeTab === "recurring"} />
           <span>Berulang</span>
         </button>
       </div>
 
-      {/* ─── TRANSFER TAB ─────────────────────────────────────── */}
       {activeTab === "transfer" && (
         <>
           <button
@@ -306,61 +309,59 @@ export default function TransfersPage() {
               resetTransferForm();
               setShowTransferForm(true);
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 py-4 text-sm font-medium text-zinc-400 transition-all hover:border-emerald-400 hover:text-emerald-500 dark:border-zinc-700 dark:hover:border-emerald-500"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-outline-variant py-4 text-label-md font-medium text-on-surface-variant transition-all hover:border-primary hover:text-primary hover:bg-surface-container-low"
           >
-            <LuPlus size={20} />
+            <MaterialSymbol icon="add" size={20} />
             Transfer Antar Akun
           </button>
 
-          {/* Transfer List */}
           {sortedTransfers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-                <LuArrowRightLeft size={32} />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-container text-outline">
+                <MaterialSymbol icon="swap_horiz" size={28} />
               </div>
-              <h3 className="text-base font-semibold text-zinc-700 dark:text-zinc-300">
-                Belum ada transfer
-              </h3>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              <h3 className="text-headline-md text-on-surface">Belum ada transfer</h3>
+              <p className="mt-stack-xs text-body-md text-on-surface-variant">
                 Pindahkan uang antar akun dengan mudah
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-stack-xs">
               {sortedTransfers.map((tr) => {
                 const fromAcc = accounts.find((a) => a.id === tr.fromAccountId);
                 const toAcc = accounts.find((a) => a.id === tr.toAccountId);
                 return (
                   <div
                     key={tr.id}
-                    className="group relative rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                    className="rounded-xl sm:rounded-2xl border border-outline-variant bg-surface-container-low p-4 sm:p-gutter transition-all hover:bg-surface-container"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="flex items-center gap-1 text-zinc-400">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <div className="flex items-center gap-1 text-outline shrink-0">
                           <Icon name={fromAcc?.icon || "wallet"} size={16} />
-                          <LuArrowRightLeft size={14} className="text-emerald-500" />
+                          <MaterialSymbol icon="swap_horiz" size={14} className="text-primary" />
                           <Icon name={toAcc?.icon || "wallet"} size={16} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                          <p className="truncate text-label-xs sm:text-label-md text-on-surface">
                             {fromAcc?.name || "?"} → {toAcc?.name || "?"}
                           </p>
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-label-xs sm:text-label-sm text-on-surface-variant truncate">
                             {formatDate(tr.transactionDate)}
                             {tr.note && ` · ${tr.note}`}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                          {formatCurrency(tr.amount, settings.currency)}
+                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <span className="text-tabular-nums font-bold text-label-sm sm:text-base text-primary">
+                          {formatCurrency(tr.amount, cur)}
                         </span>
                         <button
                           onClick={() => handleDeleteTransfer(tr.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-xs text-red-500 opacity-0 transition-opacity hover:bg-red-100 group-hover:opacity-100 dark:bg-red-950/30 dark:text-red-400"
+                          className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-error-container text-error transition-colors hover:bg-error-container active:scale-95"
+                          aria-label="Hapus transfer"
                         >
-                          <LuTrash2 size={14} />
+                          <MaterialSymbol icon="delete" size={14} />
                         </button>
                       </div>
                     </div>
@@ -372,49 +373,44 @@ export default function TransfersPage() {
         </>
       )}
 
-      {/* ─── RECURRING TAB ────────────────────────────────────── */}
       {activeTab === "recurring" && (
         <>
-          {/* Quick Add */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2 sm:gap-stack-xs">
             <button
               onClick={() => openAddRecurring("income")}
-              className="flex flex-col items-center gap-1 rounded-xl border-2 border-dashed border-emerald-300 py-4 text-emerald-600 transition-all hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+              className="flex flex-col items-center gap-1 rounded-xl sm:rounded-2xl border-2 border-dashed border-tertiary py-3 sm:py-4 text-tertiary transition-all hover:bg-tertiary-container/30 active:scale-95"
             >
-              <LuArrowUp size={20} />
-              <span className="text-xs font-semibold">Gaji</span>
+              <MaterialSymbol icon="arrow_upward" size={18} />
+              <span className="text-label-xs sm:text-label-sm font-semibold">Gaji</span>
             </button>
             <button
               onClick={() => openAddRecurring("expense")}
-              className="flex flex-col items-center gap-1 rounded-xl border-2 border-dashed border-red-300 py-4 text-red-600 transition-all hover:border-red-400 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+              className="flex flex-col items-center gap-1 rounded-xl sm:rounded-2xl border-2 border-dashed border-error py-3 sm:py-4 text-error transition-all hover:bg-error-container/30 active:scale-95"
             >
-              <LuArrowDown size={20} />
-              <span className="text-xs font-semibold">Tagihan</span>
+              <MaterialSymbol icon="arrow_downward" size={18} />
+              <span className="text-label-xs sm:text-label-sm font-semibold">Tagihan</span>
             </button>
             <button
               onClick={() => openAddRecurring("transfer")}
-              className="flex flex-col items-center gap-1 rounded-xl border-2 border-dashed border-blue-300 py-4 text-blue-600 transition-all hover:border-blue-400 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/30"
+              className="flex flex-col items-center gap-1 rounded-xl sm:rounded-2xl border-2 border-dashed border-primary py-3 sm:py-4 text-primary transition-all hover:bg-primary-container/30 active:scale-95"
             >
-              <LuArrowRightLeft size={20} />
-              <span className="text-xs font-semibold">Transfer Rutin</span>
+              <MaterialSymbol icon="swap_horiz" size={18} />
+              <span className="text-label-xs sm:text-label-sm font-semibold">Transfer Rutin</span>
             </button>
           </div>
 
-          {/* Recurring List */}
           {sortedRecurrings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-                <LuRepeat2 size={32} />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-container text-outline">
+                <MaterialSymbol icon="repeat" size={28} />
               </div>
-              <h3 className="text-base font-semibold text-zinc-700 dark:text-zinc-300">
-                Belum ada transaksi berulang
-              </h3>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              <h3 className="text-headline-md text-on-surface">Belum ada transaksi berulang</h3>
+              <p className="mt-stack-xs text-body-md text-on-surface-variant">
                 Atur pembayaran rutin seperti gaji, asuransi, pinjaman, dll
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-stack-xs">
               {sortedRecurrings.map((r) => {
                 const isDue = r.nextDate <= getToday();
                 const cat = categories.find((c) => c.id === r.categoryId);
@@ -422,83 +418,84 @@ export default function TransfersPage() {
                 return (
                   <div
                     key={r.id}
-                    className={`group relative rounded-xl border p-4 transition-all dark:bg-zinc-900 ${
+                    className={`rounded-xl sm:rounded-2xl border p-4 sm:p-gutter transition-all bg-surface-container-low ${
                       !r.active
-                        ? "border-zinc-200 opacity-50 dark:border-zinc-800"
+                        ? "border-outline-variant opacity-50"
                         : isDue
-                        ? "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20"
-                        : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:hover:border-zinc-700"
+                        ? "border-[#b38f00] bg-amber-50/50 dark:bg-amber-950/20"
+                        : "border-outline-variant hover:bg-surface-container"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                          className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl ${
                             r.type === "income"
-                              ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
+                              ? "bg-tertiary-container text-tertiary"
                               : r.type === "expense"
-                              ? "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
-                              : "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                              ? "bg-error-container text-error"
+                              : "bg-secondary-container text-secondary"
                           }`}
                         >
-                          {r.type === "income" ? <LuArrowUp size={20} /> : r.type === "expense" ? <LuArrowDown size={20} /> : <LuArrowRightLeft size={20} />}
+                          {r.type === "income" ? <MaterialSymbol icon="arrow_upward" size={18} /> : r.type === "expense" ? <MaterialSymbol icon="arrow_downward" size={18} /> : <MaterialSymbol icon="swap_horiz" size={18} />}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                          <p className="truncate text-label-xs sm:text-label-md font-semibold text-on-surface">
                             {getRecurringLabel(r.label)}
                           </p>
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-label-xs sm:text-label-sm text-on-surface-variant truncate">
                             {FREQUENCY_LABELS[r.frequency]} {r.interval > 1 ? `(${r.interval}x)` : ""}
                             {r.note && ` · ${r.note}`}
                           </p>
                           {isDue && r.active && (
-                            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                              🕐 Jatuh tempo! ({formatDate(r.nextDate)})
+                            <p className="text-label-xs sm:text-label-sm font-medium text-[#b38f00]">
+                              <MaterialSymbol icon="schedule" size={12} className="inline align-text-bottom" /> Jatuh tempo! ({formatDate(r.nextDate)})
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-col items-end gap-1 shrink-0">
                         <span
-                          className={`text-sm font-bold ${
+                          className={`text-tabular-nums font-bold text-label-sm sm:text-base ${
                             r.type === "income"
-                              ? "text-emerald-600 dark:text-emerald-400"
+                              ? "text-tertiary"
                               : r.type === "expense"
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-blue-600 dark:text-blue-400"
+                              ? "text-error"
+                              : "text-secondary"
                           }`}
                         >
                           {r.type === "income" ? "+" : r.type === "expense" ? "-" : ""}
-                          {formatCurrency(r.amount, settings.currency)}
+                          {formatCurrency(r.amount, cur)}
                         </span>
-                        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="flex gap-1">
                           <button
                             onClick={() => handleToggleRecurring(r)}
-                            className={`rounded-lg px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                            className={`rounded-lg px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-label-sm font-medium transition-colors active:scale-95 ${
                               r.active
-                                ? "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800"
-                                : "bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400"
+                                ? "border border-outline-variant text-on-surface-variant hover:bg-surface-container-highest"
+                                : "bg-primary-container text-on-primary-container"
                             }`}
                           >
-                            {r.active ? "Nonaktifkan" : "Aktifkan"}
+                            {r.active ? "Nonaktif" : "Aktif"}
                           </button>
                           <button
                             onClick={() => openEditRecurring(r)}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-zinc-100 text-zinc-400 hover:bg-zinc-200 dark:bg-zinc-800"
+                            className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest active:scale-95"
+                            aria-label="Edit recurring"
                           >
-                            <LuCalendarClock size={12} />
+                            <MaterialSymbol icon="calendar_clock" size={12} />
                           </button>
                           <button
                             onClick={() => handleDeleteRecurring(r.id)}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 dark:bg-red-950/30"
+                            className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-error-container text-error hover:bg-error-container active:scale-95"
+                            aria-label="Hapus recurring"
                           >
-                            <LuTrash2 size={12} />
+                            <MaterialSymbol icon="delete" size={12} />
                           </button>
                         </div>
                       </div>
                     </div>
-                    {/* Progress info */}
-                    <div className="mt-2 flex gap-2 text-[10px] text-zinc-400">
+                    <div className="mt-2 sm:mt-stack-xs flex flex-wrap gap-x-3 sm:gap-stack-sm text-label-xs sm:text-label-sm text-on-surface-variant">
                       <span>Akun: {acc?.name || "?"}</span>
                       {r.type === "transfer" && (
                         <span>→ {getAccountName(r.toAccountId)}</span>
@@ -513,47 +510,45 @@ export default function TransfersPage() {
         </>
       )}
 
-      {/* ─── TRANSFER FORM MODAL ────────────────────────────────── */}
       <Modal
         isOpen={showTransferForm}
         onClose={() => setShowTransferForm(false)}
         title="Transfer Antar Akun"
       >
-        <div className="space-y-4">
-          {/* From Account */}
+        <div className="space-y-stack-md">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">
               Dari Akun
             </label>
             <select
               value={transferFrom}
               onChange={(e) => setTransferFrom(e.target.value)}
-              className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+              className={`w-full rounded-xl border bg-surface-container-low px-4 py-3 text-body-md text-on-surface ${
                 transferErrors.from
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                  ? "border-error"
+                  : "border-outline-variant"
               }`}
             >
-              <option value="">Pilih akun asal</option>          {activeAccounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.name} ({formatCurrency(acc.balance, settings.currency)})
-                  </option>
-                ))}
+              <option value="">Pilih akun asal</option>
+              {activeAccounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name} ({formatCurrency(acc.balance, cur)})
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* To Account */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">
               Ke Akun
             </label>
             <select
               value={transferTo}
               onChange={(e) => setTransferTo(e.target.value)}
-              className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+              className={`w-full rounded-xl border bg-surface-container-low px-4 py-3 text-body-md text-on-surface ${
                 transferErrors.to
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                  ? "border-error"
+                  : "border-outline-variant"
               }`}
             >
               <option value="">Pilih akun tujuan</option>
@@ -561,71 +556,68 @@ export default function TransfersPage() {
                 .filter((a) => a.id !== transferFrom)
                 .map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} ({formatCurrency(acc.balance)})
+                    {acc.name} ({formatCurrency(acc.balance, cur)})
                   </option>
                 ))}
             </select>
-            {transferErrors.to && <p className="mt-1 text-xs text-red-500">{transferErrors.to}</p>}
+            {transferErrors.to && <p className="mt-stack-xs text-label-sm text-error">{transferErrors.to}</p>}
           </div>
 
-          {/* Amount */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">
               Nominal
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">Rp</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-body-md font-semibold text-on-surface-variant">{getCurrencySymbol(cur)}</span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                className={`w-full rounded-xl border bg-white py-3 pl-12 pr-4 text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+                value={formatNumberInput(transferAmount)}
+                onChange={(e) => setTransferAmount(parseNumberInput(e.target.value))}
+                className={`w-full rounded-xl border bg-surface-container-low py-3 pl-12 pr-4 text-body-md font-semibold text-on-surface ${
                   transferErrors.amount
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                    ? "border-error"
+                    : "border-outline-variant"
                 }`}
               />
             </div>
-            {transferErrors.amount && <p className="mt-1 text-xs text-red-500">{transferErrors.amount}</p>}
+            {transferErrors.amount && <p className="mt-stack-xs text-label-sm text-error">{transferErrors.amount}</p>}
           </div>
 
-          {/* Date */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Tanggal</label>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Tanggal</label>
             <input
               type="date"
               value={transferDate}
               onChange={(e) => setTransferDate(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
             />
           </div>
 
-          {/* Note */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Catatan <span className="text-zinc-400">(opsional)</span>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">
+              Catatan <span className="text-outline">(opsional)</span>
             </label>
             <input
               type="text"
               placeholder="e.g. Transfer bulanan"
               value={transferNote}
               onChange={(e) => setTransferNote(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant"
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-stack-sm pt-2">
             <button
               onClick={() => setShowTransferForm(false)}
-              className="flex-1 rounded-xl border border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400"
+              className="flex-1 rounded-xl border border-outline-variant px-5 py-3 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-highest transition-colors"
             >
               Batal
             </button>
             <button
               onClick={handleAddTransfer}
-              className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="flex-1 rounded-xl bg-primary px-5 py-3 text-label-md font-medium text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98]"
             >
               Transfer
             </button>
@@ -633,7 +625,6 @@ export default function TransfersPage() {
         </div>
       </Modal>
 
-      {/* ─── RECURRING FORM MODAL ──────────────────────────────── */}
       <Modal
         isOpen={showRecurringForm}
         onClose={() => {
@@ -642,57 +633,55 @@ export default function TransfersPage() {
         }}
         title={editRecurring ? "Edit Transaksi Berulang" : "Transaksi Berulang"}
       >
-        <div className="space-y-4 max-h-[65vh] overflow-y-auto">
-          {/* Type */}
+        <div className="space-y-stack-md max-h-[65vh] overflow-y-auto">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Tipe</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Tipe</label>
+            <div className="grid grid-cols-3 gap-2 sm:gap-stack-xs">
               <button
                 type="button"
                 onClick={() => setRecType("income")}
-                className={`rounded-xl py-2.5 text-xs font-medium transition-all ${
+                className={`rounded-xl py-2.5 sm:py-3 text-label-xs sm:text-label-sm font-medium transition-all ${
                   recType === "income"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800"
+                    ? "bg-tertiary text-on-tertiary shadow-sm"
+                    : "border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-highest"
                 }`}
               >
-                <LuArrowUp size={14} className="mx-auto mb-0.5" />
+                <MaterialSymbol icon="arrow_upward" size={14} className="mx-auto mb-0.5" fill={recType === "income"} />
                 Gaji/Pemasukan
               </button>
               <button
                 type="button"
                 onClick={() => setRecType("expense")}
-                className={`rounded-xl py-2.5 text-xs font-medium transition-all ${
+                className={`rounded-xl py-2.5 sm:py-3 text-label-xs sm:text-label-sm font-medium transition-all ${
                   recType === "expense"
-                    ? "bg-red-600 text-white shadow-sm"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800"
+                    ? "bg-error text-on-error shadow-sm"
+                    : "border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-highest"
                 }`}
               >
-                <LuArrowDown size={14} className="mx-auto mb-0.5" />
+                <MaterialSymbol icon="arrow_downward" size={14} className="mx-auto mb-0.5" fill={recType === "expense"} />
                 Tagihan
               </button>
               <button
                 type="button"
                 onClick={() => setRecType("transfer")}
-                className={`rounded-xl py-2.5 text-xs font-medium transition-all ${
+                className={`rounded-xl py-2.5 sm:py-3 text-label-xs sm:text-label-sm font-medium transition-all ${
                   recType === "transfer"
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800"
+                    ? "bg-primary text-on-primary shadow-sm"
+                    : "border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-highest"
                 }`}
               >
-                <LuArrowRightLeft size={14} className="mx-auto mb-0.5" />
+                <MaterialSymbol icon="swap_horiz" size={14} className="mx-auto mb-0.5" fill={recType === "transfer"} />
                 Transfer
               </button>
             </div>
           </div>
 
-          {/* Label */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Label</label>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Label</label>
             <select
               value={recLabel}
               onChange={(e) => setRecLabel(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
             >
               {RECURRING_LABELS.map((l) => (
                 <option key={l.value} value={l.value}>
@@ -702,34 +691,33 @@ export default function TransfersPage() {
             </select>
           </div>
 
-          {/* Amount */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nominal</label>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Nominal</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">Rp</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-body-md font-semibold text-on-surface-variant">{getCurrencySymbol(cur)}</span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={recAmount}
-                onChange={(e) => setRecAmount(e.target.value)}
-                className={`w-full rounded-xl border bg-white py-3 pl-12 pr-4 text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+                value={formatNumberInput(recAmount)}
+                onChange={(e) => setRecAmount(parseNumberInput(e.target.value))}
+                className={`w-full rounded-xl border bg-surface-container-low py-3 pl-12 pr-4 text-body-md font-semibold text-on-surface ${
                   recErrors.amount
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                    ? "border-error"
+                    : "border-outline-variant"
                 }`}
               />
             </div>
-            {recErrors.amount && <p className="mt-1 text-xs text-red-500">{recErrors.amount}</p>}
+            {recErrors.amount && <p className="mt-stack-xs text-label-sm text-error">{recErrors.amount}</p>}
           </div>
 
-          {/* Category (for income/expense) */}
           {recType !== "transfer" && (
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Kategori</label>
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">Kategori</label>
               <select
                 value={recCategoryId}
                 onChange={(e) => setRecCategoryId(e.target.value)}
-                className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
               >
                 {(recType === "income" ? incomeCategories : expenseCategories).map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -738,15 +726,14 @@ export default function TransfersPage() {
             </div>
           )}
 
-          {/* Account selection */}
           {recType === "transfer" ? (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Dari Akun</label>
+                <label className="mb-1.5 block text-label-sm text-on-surface-variant">Dari Akun</label>
                 <select
                   value={recFromAccount}
                   onChange={(e) => setRecFromAccount(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                  className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
                 >
                   {activeAccounts.map((acc) => (
                     <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -754,11 +741,11 @@ export default function TransfersPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Ke Akun</label>
+                <label className="mb-1.5 block text-label-sm text-on-surface-variant">Ke Akun</label>
                 <select
                   value={recToAccount}
                   onChange={(e) => setRecToAccount(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                  className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
                 >
                   {activeAccounts.filter((a) => a.id !== recFromAccount).map((acc) => (
                     <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -768,14 +755,14 @@ export default function TransfersPage() {
             </>
           ) : (
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Akun</label>
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">Akun</label>
               <select
                 value={recAccountId}
                 onChange={(e) => setRecAccountId(e.target.value)}
-                className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+                className={`w-full rounded-xl border bg-surface-container-low px-4 py-3 text-body-md text-on-surface ${
                   recErrors.account
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                    ? "border-error"
+                    : "border-outline-variant"
                 }`}
               >
                 {activeAccounts.map((acc) => (
@@ -785,14 +772,13 @@ export default function TransfersPage() {
             </div>
           )}
 
-          {/* Frequency */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-stack-sm">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Frekuensi</label>
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">Frekuensi</label>
               <select
                 value={recFrequency}
                 onChange={(e) => setRecFrequency(e.target.value as RecurringFrequency)}
-                className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
               >
                 <option value="daily">Setiap Hari</option>
                 <option value="weekly">Setiap Minggu</option>
@@ -801,60 +787,88 @@ export default function TransfersPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Interval</label>
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">Interval</label>
               <input
                 type="number"
                 min={1}
                 value={recInterval}
                 onChange={(e) => setRecInterval(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
               />
             </div>
           </div>
 
-          {/* Start Date */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Mulai Tanggal</label>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Mulai Tanggal</label>
             <input
               type="date"
               value={recStartDate}
               onChange={(e) => setRecStartDate(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface"
             />
           </div>
 
-          {/* Note */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Catatan <span className="text-zinc-400">(opsional)</span></label>
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">Catatan <span className="text-outline">(opsional)</span></label>
             <input
               type="text"
               placeholder="e.g. Gaji bulanan"
               value={recNote}
               onChange={(e) => setRecNote(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant"
             />
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-stack-sm pt-2">
             <button
               onClick={() => {
                 setShowRecurringForm(false);
                 setEditRecurring(null);
               }}
-              className="flex-1 rounded-xl border border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400"
+              className="flex-1 rounded-xl border border-outline-variant px-5 py-3 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-highest transition-colors"
             >
               Batal
             </button>
             <button
               onClick={handleAddRecurring}
-              className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="flex-1 rounded-xl bg-primary px-5 py-3 text-label-md font-medium text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98]"
             >
               {editRecurring ? "Simpan" : "Tambah"}
             </button>
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteTransferId !== null}
+        title="Hapus Transfer"
+        message="Yakin ingin menghapus transfer ini?"
+        onConfirm={() => {
+          if (deleteTransferId) {
+            deleteTransfer(deleteTransferId);
+            loadData();
+            showToast("Transfer berhasil dihapus");
+          }
+          setDeleteTransferId(null);
+        }}
+        onCancel={() => setDeleteTransferId(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteRecurringId !== null}
+        title="Hapus Transaksi Berulang"
+        message="Yakin ingin menghapus transaksi berulang ini?"
+        onConfirm={() => {
+          if (deleteRecurringId) {
+            deleteRecurringTransaction(deleteRecurringId);
+            loadData();
+            showToast("Transaksi berulang berhasil dihapus");
+          }
+          setDeleteRecurringId(null);
+        }}
+        onCancel={() => setDeleteRecurringId(null)}
+      />
+    </>)}
     </div>
   );
 }

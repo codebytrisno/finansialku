@@ -1,73 +1,126 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LuLayoutDashboard,
-  LuArrowLeftRight,
-  LuTags,
-  LuChartBar,
-  LuSettings,
-  LuWallet,
-  LuTarget,
-  LuRepeat2,
-} from "react-icons/lu";
+import { MaterialSymbol } from "./MaterialSymbol";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: LuLayoutDashboard },
-  { href: "/transactions", label: "Transaksi", icon: LuArrowLeftRight },
-  { href: "/accounts", label: "Akun", icon: LuWallet },
-  { href: "/budgets", label: "Anggaran", icon: LuTarget },
-  { href: "/transfers", label: "Transfer", icon: LuRepeat2 },
-  { href: "/reports", label: "Laporan", icon: LuChartBar },
-  { href: "/categories", label: "Kategori", icon: LuTags },
-  { href: "/settings", label: "Setelan", icon: LuSettings },
+  { href: "/", label: "Dashboard", icon: "dashboard" },
+  { href: "/transactions", label: "Transaksi", icon: "receipt_long" },
+  { href: "/accounts", label: "Akun", icon: "account_balance_wallet" },
+  { href: "/budgets", label: "Anggaran", icon: "account_balance" },
+  { href: "/transfers", label: "Transfer", icon: "swap_horiz" },
+  { href: "/reports", label: "Laporan", icon: "analytics" },
+  { href: "/categories", label: "Kategori", icon: "category" },
+  { href: "/settings", label: "Setelan", icon: "settings" },
 ];
 
-const MAX_VISIBLE = 5;
+const MAX_VISIBLE = 4;
 
-function getPriorityItems(pathname: string) {
-  // Always show the active page and Dashboard
+function isActiveItem(href: string, pathname: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
+
+function getPriorityOrder(pathname: string) {
   const alwaysShow = ["/", "/accounts", "/budgets", "/reports", "/settings"];
-  const priorityItems = NAV_ITEMS.filter(
-    (item) => alwaysShow.includes(item.href) || item.href === pathname || pathname.startsWith(item.href)
-  );
-  // Deduplicate and limit
-  const seen = new Set<string>();
-  return priorityItems.filter((item) => {
-    if (seen.has(item.href)) return false;
-    seen.add(item.href);
-    return true;
-  }).slice(0, MAX_VISIBLE);
+  const scored = NAV_ITEMS.map((item) => {
+    let score = 0;
+    if (alwaysShow.includes(item.href)) score += 10;
+    if (isActiveItem(item.href, pathname)) score += 5;
+    return { ...item, score };
+  });
+  return scored.sort((a, b) => b.score - a.score);
 }
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const [showMore, setShowMore] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
-  const visibleItems = getPriorityItems(pathname);
+  const ordered = getPriorityOrder(pathname);
+  const visibleItems = ordered.slice(0, MAX_VISIBLE);
+  const moreItems = ordered.filter(
+    (item) => !visibleItems.some((v) => v.href === item.href)
+  );
+
+  useEffect(() => {
+    if (!showMore) return;
+    const handleClick = (e: MouseEvent) => {
+      if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) {
+        setShowMore(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showMore]);
+
+  useEffect(() => {
+    setShowMore(false);
+  }, [pathname]);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/95 dark:supports-[backdrop-filter]:bg-zinc-900/80 lg:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-1 py-1">
+    <>
+      <nav className="fixed bottom-0 left-0 z-40 flex h-[60px] w-full items-center justify-around border-t border-outline-variant bg-surface-container-low px-1 lg:hidden safe-area-bottom">
         {visibleItems.map((item) => {
-          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const Icon = item.icon;
+          const active = isActiveItem(item.href, pathname);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors ${
-                isActive
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[11px] leading-tight transition-colors active:scale-95 ${
+                active ? "text-primary" : "text-on-surface-variant"
               }`}
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
+              <MaterialSymbol icon={item.icon} fill={active} size={22} />
+              <span className="truncate max-w-full text-center">{item.label}</span>
             </Link>
           );
         })}
-      </div>
-    </nav>
+        <button
+          onClick={() => setShowMore(true)}
+          className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1 py-1.5 text-[11px] leading-tight transition-colors active:scale-95 ${
+            showMore ? "text-primary" : "text-on-surface-variant"
+          }`}
+        >
+          <MaterialSymbol icon={showMore ? "close" : "more_horiz"} size={22} />
+          <span className="truncate max-w-full text-center">Lainnya</span>
+        </button>
+      </nav>
+
+      {showMore && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm lg:hidden">
+          <div
+            ref={sheetRef}
+            className="w-full max-w-md rounded-t-2xl bg-surface-container-low px-4 pb-8 pt-4 shadow-xl animate-slide-up"
+          >
+            <div className="mx-auto mb-6 h-1 w-10 rounded-full bg-outline-variant" />
+            <p className="mb-4 text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider px-2">
+              Menu Lainnya
+            </p>
+            <div className="grid grid-cols-4 gap-3">
+              {ordered.map((item) => {
+                const active = isActiveItem(item.href, pathname);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setShowMore(false)}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center text-[11px] leading-tight transition-colors active:scale-95 ${
+                      active
+                        ? "bg-primary-container text-on-primary-container"
+                        : "text-on-surface-variant hover:bg-surface-container-highest"
+                    }`}
+                  >
+                    <MaterialSymbol icon={item.icon} fill={active} size={24} />
+                    <span className="truncate max-w-full">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

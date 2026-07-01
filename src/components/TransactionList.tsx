@@ -10,15 +10,8 @@ import {
 } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Icon } from "@/lib/icons";
+import { MaterialSymbol } from "./MaterialSymbol";
 import EmptyState from "./EmptyState";
-import {
-  LuSearch,
-  LuSlidersHorizontal,
-  LuPencil,
-  LuTrash2,
-  LuChevronDown,
-  LuChevronUp,
-} from "react-icons/lu";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -64,12 +57,11 @@ export default function TransactionList({
   );
 
   return (
-    <div className="space-y-3">
-      {/* Search & Filter Bar */}
-      <div className="flex items-center gap-2">
+    <div className="space-y-stack-sm">
+      <div className="flex items-center gap-stack-xs">
         <div className="relative flex-1">
-          <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-            <LuSearch size={16} />
+          <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+            <MaterialSymbol icon="search" size={16} />
           </div>
           <input
             type="text"
@@ -78,32 +70,30 @@ export default function TransactionList({
             onChange={(e) =>
               onFiltersChange({ ...filters, search: e.target.value })
             }
-            className="w-full rounded-xl border border-zinc-300 bg-white py-2.5 pl-9 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-500 dark:focus:ring-emerald-400"
+            className="w-full rounded-xl border border-outline-variant bg-surface-container-low py-2.5 pl-9 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant"
           />
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`rounded-xl border p-2.5 text-sm transition-colors ${
+          className={`rounded-xl border p-2.5 transition-colors ${
             showFilters ||
             filters.type !== "all" ||
             filters.categoryId ||
             filters.dateFrom ||
             filters.dateTo
-              ? "border-emerald-500 bg-emerald-50 text-emerald-600 dark:border-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-400"
-              : "border-zinc-300 text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              ? "border-primary bg-primary-container text-primary"
+              : "border-outline-variant text-on-surface-variant hover:bg-surface-container-highest"
           }`}
         >
-          <LuSlidersHorizontal size={18} />
+          <MaterialSymbol icon="filter_list" size={18} />
         </button>
       </div>
 
-      {/* Filter Panel */}
       {showFilters && (
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 space-y-3 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="grid grid-cols-2 gap-3">
-            {/* Type Filter */}
+        <div className="rounded-xl sm:rounded-2xl border border-outline-variant bg-surface-container-low p-4 sm:p-gutter space-y-3 sm:space-y-stack-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-stack-sm">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">
                 Tipe
               </label>
               <select
@@ -114,7 +104,7 @@ export default function TransactionList({
                     type: e.target.value as "all" | "income" | "expense",
                   })
                 }
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-body-md text-on-surface appearance-none"
               >
                 <option value="all">Semua</option>
                 <option value="income">Pemasukan</option>
@@ -122,9 +112,8 @@ export default function TransactionList({
               </select>
             </div>
 
-            {/* Category Filter */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">
                 Kategori
               </label>
               <select
@@ -132,7 +121,7 @@ export default function TransactionList({
                 onChange={(e) =>
                   onFiltersChange({ ...filters, categoryId: e.target.value })
                 }
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-body-md text-on-surface appearance-none"
               >
                 <option value="">Semua</option>
                 {uniqueCategories.map((cat) => (
@@ -143,9 +132,8 @@ export default function TransactionList({
               </select>
             </div>
 
-            {/* Date From */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">
                 Dari Tanggal
               </label>
               <input
@@ -154,13 +142,12 @@ export default function TransactionList({
                 onChange={(e) =>
                   onFiltersChange({ ...filters, dateFrom: e.target.value })
                 }
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-body-md text-on-surface"
               />
             </div>
 
-            {/* Date To */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+              <label className="mb-1.5 block text-label-sm text-on-surface-variant">
                 Sampai Tanggal
               </label>
               <input
@@ -169,33 +156,32 @@ export default function TransactionList({
                 onChange={(e) =>
                   onFiltersChange({ ...filters, dateTo: e.target.value })
                 }
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-body-md text-on-surface"
               />
             </div>
           </div>
 
-          {/* Sort */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+            <label className="mb-1.5 block text-label-sm text-on-surface-variant">
               Urutkan
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm:gap-stack-xs">
               {SORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.field}
                   onClick={() => toggleSort(opt.field)}
-                  className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`flex flex-1 items-center justify-center gap-1 rounded-lg sm:rounded-xl px-2 sm:px-4 py-2 text-[11px] sm:text-label-md font-medium transition-colors ${
                     filters.sortField === opt.field
-                      ? "bg-emerald-600 text-white"
-                      : "bg-white text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400"
+                      ? "bg-primary text-on-primary"
+                      : "border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-highest"
                   }`}
                 >
                   {opt.label}
                   {filters.sortField === opt.field &&
                     (filters.sortDirection === "desc" ? (
-                      <LuChevronDown size={14} />
+                      <MaterialSymbol icon="expand_more" size={16} />
                     ) : (
-                      <LuChevronUp size={14} />
+                      <MaterialSymbol icon="expand_less" size={16} />
                     ))}
                 </button>
               ))}
@@ -204,7 +190,6 @@ export default function TransactionList({
         </div>
       )}
 
-      {/* Transaction List */}
       {transactions.length === 0 ? (
         <EmptyState
           title="Belum ada transaksi"
@@ -212,81 +197,84 @@ export default function TransactionList({
           action={{ label: "+ Tambah Transaksi", onClick: onAdd }}
         />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-stack-xs">
           {transactions.map((t) => {
             const cat = categories.find((c) => c.id === t.categoryId);
             return (
               <div
                 key={t.id}
-                className="group relative rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                className="relative rounded-xl sm:rounded-2xl border border-outline-variant bg-surface-container-low p-3 sm:p-4 transition-all hover:bg-surface-container"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                      <Icon name={cat?.icon || "folder"} size={16} />
+                <div className="flex items-start justify-between gap-2 sm:gap-stack-sm">
+                  <div className="flex items-start gap-2 sm:gap-stack-sm min-w-0 flex-1">
+                    <div
+                      className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl ${
+                        t.type === "income"
+                          ? "bg-tertiary/10 text-tertiary"
+                          : "bg-error/10 text-error"
+                      }`}
+                    >
+                      <Icon name={cat?.icon || (t.type === "income" ? "south_west" : "north_east")} size={18} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      <p className="truncate text-label-xs sm:text-label-md font-bold text-on-surface">
                         {cat?.name || "Tanpa Kategori"}
                       </p>
                       {t.note && (
-                        <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                        <p className="truncate text-label-xs sm:text-label-sm text-on-surface-variant">
                           {t.note}
                         </p>
                       )}
-                      <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                      <p className="mt-0.5 text-label-xs sm:text-label-sm text-outline">
                         {formatDate(t.transactionDate)}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <span
-                      className={`text-sm font-bold ${
+                      className={`text-tabular-nums font-bold text-label-sm sm:text-base ${
                         t.type === "income"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-red-600 dark:text-red-400"
+                          ? "text-tertiary"
+                          : "text-error"
                       }`}
                     >
                       {t.type === "income" ? "+" : "-"}
                       {formatCurrency(t.amount)}
                     </span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => onEdit(t)}
+                        className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high active:scale-95"
+                        title="Edit"
+                      >
+                        <MaterialSymbol icon="edit" size={12} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(t.id)}
+                        className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-error-container text-error hover:bg-error-container active:scale-95"
+                        title="Hapus"
+                      >
+                        <MaterialSymbol icon="delete" size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Action buttons - appear on hover/always visible on mobile */}
-                <div className="absolute right-3 top-3 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100">
-                  <button
-                    onClick={() => onEdit(t)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                    title="Edit"
-                  >
-                    <LuPencil size={14} />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(t.id)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-xs text-red-500 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
-                    title="Hapus"
-                  >
-                    <LuTrash2 size={14} />
-                  </button>
-                </div>
-
-                {/* Delete confirmation */}
                 {deleteConfirm === t.id && (
-                  <div className="mt-3 flex items-center justify-end gap-2 border-t border-zinc-100 pt-3 dark:border-zinc-800">
-                    <span className="text-xs text-zinc-500">Hapus?</span>
+                  <div className="mt-2 sm:mt-stack-sm flex items-center justify-end gap-2 sm:gap-stack-xs border-t border-outline-variant pt-2 sm:pt-stack-sm">
+                    <span className="text-label-xs sm:text-label-sm text-on-surface-variant">Hapus?</span>
                     <button
                       onClick={() => {
                         onDelete(t.id);
                         setDeleteConfirm(null);
                       }}
-                      className="rounded-lg bg-red-500 px-3 py-1 text-xs font-medium text-white hover:bg-red-600"
+                      className="rounded-lg sm:rounded-xl bg-error px-3 sm:px-4 py-1.5 sm:py-2 text-label-xs sm:text-label-sm font-medium text-on-error hover:bg-error active:scale-95"
                     >
                       Ya
                     </button>
                     <button
                       onClick={() => setDeleteConfirm(null)}
-                      className="rounded-lg bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300"
+                      className="rounded-lg sm:rounded-xl border border-outline-variant px-3 sm:px-4 py-1.5 sm:py-2 text-label-xs sm:text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-highest active:scale-95"
                     >
                       Tidak
                     </button>

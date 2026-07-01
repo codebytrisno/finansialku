@@ -1,0 +1,824 @@
+<!doctype html>
+
+<html class="light" lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>FinansialKu - Budget Management</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "on-secondary-fixed": "#121e1c",
+                            "primary-container": "#008378",
+                            "surface-container": "#e5eeff",
+                            "on-surface": "#0b1c30",
+                            "on-error-container": "#93000a",
+                            background: "#f8f9ff",
+                            "tertiary-fixed": "#6ffbbe",
+                            "surface-container-highest": "#d3e4fe",
+                            "on-secondary": "#ffffff",
+                            "on-primary-container": "#f4fffc",
+                            "on-secondary-fixed-variant": "#3d4947",
+                            "on-secondary-container": "#5b6765",
+                            "primary-fixed-dim": "#6bd8cb",
+                            tertiary: "#006947",
+                            "on-surface-variant": "#3d4947",
+                            "tertiary-container": "#00855b",
+                            "on-background": "#0b1c30",
+                            "surface-container-lowest": "#ffffff",
+                            "on-error": "#ffffff",
+                            primary: "#00685f",
+                            "surface-container-low": "#eff4ff",
+                            outline: "#6d7a77",
+                            error: "#ba1a1a",
+                            secondary: "#55615f",
+                            "on-tertiary-fixed-variant": "#005236",
+                            "on-tertiary-fixed": "#002113",
+                            "surface-variant": "#d3e4fe",
+                            "secondary-container": "#d8e5e2",
+                            "secondary-fixed": "#d8e5e2",
+                            "outline-variant": "#bcc9c6",
+                            "on-primary": "#ffffff",
+                            "surface-bright": "#f8f9ff",
+                            "inverse-primary": "#6bd8cb",
+                            "on-primary-fixed-variant": "#005049",
+                            "on-primary-fixed": "#00201d",
+                            surface: "#f8f9ff",
+                            "on-tertiary-container": "#f5fff6",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-fixed-dim": "#4edea3",
+                            "surface-tint": "#006a61",
+                            "secondary-fixed-dim": "#bcc9c6",
+                            "inverse-on-surface": "#eaf1ff",
+                            "primary-fixed": "#89f5e7",
+                            "surface-dim": "#cbdbf5",
+                            "inverse-surface": "#213145",
+                            "surface-container-high": "#dce9ff",
+                            "error-container": "#ffdad6",
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px",
+                        },
+                        spacing: {
+                            "stack-xs": "0.25rem",
+                            "stack-sm": "0.5rem",
+                            "stack-md": "1rem",
+                            "stack-lg": "2rem",
+                            gutter: "1.5rem",
+                            "container-max": "1280px",
+                            "margin-mobile": "1rem",
+                        },
+                        fontFamily: {
+                            "label-md": ["Geist"],
+                            "headline-md": ["Geist"],
+                            "body-md": ["Geist"],
+                            "label-sm": ["Geist"],
+                            "tabular-nums": ["Geist"],
+                            "body-lg": ["Geist"],
+                            "headline-lg": ["Geist"],
+                            display: ["Geist"],
+                            "headline-lg-mobile": ["Geist"],
+                        },
+                        fontSize: {
+                            "label-md": [
+                                "14px",
+                                {
+                                    lineHeight: "20px",
+                                    letterSpacing: "0.01em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "headline-md": [
+                                "20px",
+                                { lineHeight: "28px", fontWeight: "600" },
+                            ],
+                            "body-md": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "400" },
+                            ],
+                            "label-sm": [
+                                "12px",
+                                {
+                                    lineHeight: "16px",
+                                    letterSpacing: "0.02em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "tabular-nums": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "600" },
+                            ],
+                            "body-lg": [
+                                "18px",
+                                { lineHeight: "28px", fontWeight: "400" },
+                            ],
+                            "headline-lg": [
+                                "32px",
+                                {
+                                    lineHeight: "40px",
+                                    letterSpacing: "-0.01em",
+                                    fontWeight: "600",
+                                },
+                            ],
+                            display: [
+                                "48px",
+                                {
+                                    lineHeight: "56px",
+                                    letterSpacing: "-0.02em",
+                                    fontWeight: "700",
+                                },
+                            ],
+                            "headline-lg-mobile": [
+                                "24px",
+                                { lineHeight: "32px", fontWeight: "600" },
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            body {
+                font-family: "Geist", sans-serif;
+            }
+            .material-symbols-outlined {
+                font-variation-settings:
+                    "FILL" 0,
+                    "wght" 400,
+                    "GRAD" 0,
+                    "opsz" 24;
+            }
+            .progress-bar-transition {
+                transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .glass-card {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+        </style>
+    </head>
+    <body class="bg-background text-on-surface min-h-screen">
+        <!-- Top Navigation Bar -->
+        <header
+            class="bg-surface shadow-sm flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-40"
+        >
+            <div class="flex items-center gap-4">
+                <span
+                    class="font-headline-lg text-headline-lg font-bold text-primary"
+                    >FinansialKu</span
+                >
+                <div class="hidden md:flex ml-8 space-x-6">
+                    <a
+                        class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low px-3 py-2 rounded-lg transition-colors"
+                        href="#"
+                        >Dashboard</a
+                    >
+                    <a
+                        class="font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low px-3 py-2 rounded-lg transition-colors"
+                        href="#"
+                        >Transaksi</a
+                    >
+                    <a
+                        class="font-label-md text-label-md text-primary font-bold border-b-2 border-primary px-3 py-2"
+                        href="#"
+                        >Budget</a
+                    >
+                </div>
+            </div>
+            <div class="flex items-center gap-stack-md">
+                <button
+                    class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-container-low rounded-full transition-colors"
+                >
+                    notifications
+                </button>
+                <button
+                    class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-container-low rounded-full transition-colors"
+                >
+                    account_circle
+                </button>
+            </div>
+        </header>
+        <!-- Sidebar (Desktop) -->
+        <aside
+            class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant hidden md:flex flex-col p-4 space-y-stack-md z-30 pt-20"
+        >
+            <nav class="flex-1 space-y-2">
+                <a
+                    class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="font-label-md text-label-md">Dashboard</span>
+                </a>
+                <a
+                    class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined">receipt_long</span>
+                    <span class="font-label-md text-label-md">Transaksi</span>
+                </a>
+                <a
+                    class="flex items-center gap-3 p-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold active:translate-x-1"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        style="font-variation-settings: &quot;FILL&quot; 1"
+                        >account_balance_wallet</span
+                    >
+                    <span class="font-label-md text-label-md">Budget</span>
+                </a>
+                <a
+                    class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="font-label-md text-label-md">Laporan</span>
+                </a>
+                <a
+                    class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="font-label-md text-label-md">Pengaturan</span>
+                </a>
+            </nav>
+            <div
+                class="p-4 bg-primary-container rounded-xl text-on-primary-container"
+            >
+                <p class="font-label-sm text-label-sm mb-2 opacity-80">
+                    Limit tercapai?
+                </p>
+                <p class="font-label-md text-label-md font-bold mb-3">
+                    Upgrade Premium
+                </p>
+                <button
+                    class="w-full bg-surface-container-lowest text-primary py-2 rounded-lg font-bold text-label-sm hover:bg-opacity-90 transition-all"
+                >
+                    Lihat Paket
+                </button>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="md:ml-64 p-4 md:p-gutter max-w-container-max mx-auto">
+            <!-- Header Section -->
+            <section
+                class="flex flex-col md:flex-row md:items-end justify-between gap-stack-lg mb-stack-lg"
+            >
+                <div>
+                    <h1
+                        class="font-headline-lg text-headline-lg text-on-surface"
+                    >
+                        Kelola Anggaran
+                    </h1>
+                    <p
+                        class="font-body-md text-body-md text-on-surface-variant"
+                    >
+                        Pantau pengeluaran bulanan Anda untuk mencapai tujuan
+                        finansial.
+                    </p>
+                </div>
+                <div
+                    class="flex items-center gap-stack-md overflow-x-auto pb-2 md:pb-0"
+                >
+                    <div class="flex bg-secondary-container p-1 rounded-lg">
+                        <button
+                            class="px-4 py-2 text-label-md font-label-md rounded-md transition-all"
+                        >
+                            Mingguan
+                        </button>
+                        <button
+                            class="px-4 py-2 text-label-md font-label-md rounded-md bg-surface-container-lowest shadow-sm text-primary font-bold transition-all"
+                        >
+                            Bulanan
+                        </button>
+                        <button
+                            class="px-4 py-2 text-label-md font-label-md rounded-md transition-all"
+                        >
+                            Tahunan
+                        </button>
+                    </div>
+                    <button
+                        class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all whitespace-nowrap shadow-md"
+                    >
+                        <span class="material-symbols-outlined">add</span>
+                        Tambah Budget
+                    </button>
+                </div>
+            </section>
+            <!-- Bento Summary Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-stack-lg">
+                <!-- Total Summary Card -->
+                <div
+                    class="md:col-span-2 relative overflow-hidden bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm group"
+                >
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 -mr-20 -mt-20 opacity-10 group-hover:opacity-20 transition-opacity"
+                    ></div>
+                    <div
+                        class="relative z-10 flex flex-col h-full justify-between"
+                    >
+                        <div>
+                            <span
+                                class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant opacity-70"
+                                >Total Anggaran Bulan Ini</span
+                            >
+                            <h2
+                                class="font-display text-display text-primary mt-2"
+                            >
+                                Rp 12.500.000
+                            </h2>
+                        </div>
+                        <div class="mt-8 flex flex-wrap gap-stack-lg">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-primary"
+                                >
+                                    <span class="material-symbols-outlined"
+                                        >account_balance_wallet</span
+                                    >
+                                </div>
+                                <div>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        Terpakai
+                                    </p>
+                                    <p
+                                        class="font-tabular-nums text-tabular-nums text-on-surface"
+                                    >
+                                        Rp 8.450.000
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary"
+                                >
+                                    <span class="material-symbols-outlined"
+                                        >savings</span
+                                    >
+                                </div>
+                                <div>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        Sisa Saldo
+                                    </p>
+                                    <p
+                                        class="font-tabular-nums text-tabular-nums text-tertiary"
+                                    >
+                                        Rp 4.050.000
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Health Status Card -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col items-center justify-center text-center"
+                >
+                    <div class="relative w-32 h-32 mb-4">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle
+                                class="text-secondary-container"
+                                cx="64"
+                                cy="64"
+                                fill="transparent"
+                                r="58"
+                                stroke="currentColor"
+                                stroke-width="12"
+                            ></circle>
+                            <circle
+                                class="text-primary transition-all duration-1000"
+                                cx="64"
+                                cy="64"
+                                fill="transparent"
+                                r="58"
+                                stroke="currentColor"
+                                stroke-dasharray="364.4"
+                                stroke-dashoffset="116.6"
+                                stroke-width="12"
+                            ></circle>
+                        </svg>
+                        <div
+                            class="absolute inset-0 flex flex-col items-center justify-center"
+                        >
+                            <span
+                                class="font-headline-md text-headline-md text-on-surface"
+                                >68%</span
+                            >
+                            <span
+                                class="font-label-sm text-label-sm text-on-surface-variant"
+                                >Budget</span
+                            >
+                        </div>
+                    </div>
+                    <h3
+                        class="font-headline-md text-headline-md text-on-surface"
+                    >
+                        Kondisi Aman
+                    </h3>
+                    <p
+                        class="font-body-md text-body-md text-on-surface-variant mt-1"
+                    >
+                        Pengeluaran Anda terkendali bulan ini.
+                    </p>
+                </div>
+            </div>
+            <!-- Budget List Section -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h3
+                        class="font-headline-md text-headline-md text-on-surface"
+                    >
+                        Daftar Anggaran Per Kategori
+                    </h3>
+                    <button
+                        class="text-primary font-bold text-label-md hover:underline"
+                    >
+                        Lihat Detail
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Food Category Card -->
+                    <div
+                        class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group"
+                    >
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600"
+                                >
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-variation-settings: &quot;FILL&quot;
+                                                1;
+                                        "
+                                        >restaurant</span
+                                    >
+                                </div>
+                                <div>
+                                    <h4
+                                        class="font-headline-md text-headline-md text-on-surface"
+                                    >
+                                        Makan &amp; Minum
+                                    </h4>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        12 Transaksi
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="font-label-sm text-label-sm text-on-surface-variant"
+                                >
+                                    Sisa
+                                </p>
+                                <p
+                                    class="font-tabular-nums text-tabular-nums text-on-surface"
+                                >
+                                    Rp 850.000
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div
+                                class="flex justify-between font-label-md text-label-md"
+                            >
+                                <span class="text-on-surface-variant"
+                                    >Rp 2.150.000 /
+                                    <span class="text-on-surface"
+                                        >Rp 3.000.000</span
+                                    ></span
+                                >
+                                <span class="text-primary font-bold">72%</span>
+                            </div>
+                            <div
+                                class="w-full h-3 bg-secondary-container rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-primary progress-bar-transition"
+                                    style="width: 72%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Transport Category Card -->
+                    <div
+                        class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow"
+                    >
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600"
+                                >
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-variation-settings: &quot;FILL&quot;
+                                                1;
+                                        "
+                                        >commute</span
+                                    >
+                                </div>
+                                <div>
+                                    <h4
+                                        class="font-headline-md text-headline-md text-on-surface"
+                                    >
+                                        Transportasi
+                                    </h4>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        8 Transaksi
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="font-label-sm text-label-sm text-on-surface-variant"
+                                >
+                                    Sisa
+                                </p>
+                                <p
+                                    class="font-tabular-nums text-tabular-nums text-error"
+                                >
+                                    Rp 120.000
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div
+                                class="flex justify-between font-label-md text-label-md"
+                            >
+                                <span class="text-on-surface-variant"
+                                    >Rp 1.380.000 /
+                                    <span class="text-on-surface"
+                                        >Rp 1.500.000</span
+                                    ></span
+                                >
+                                <span class="text-error font-bold">92%</span>
+                            </div>
+                            <div
+                                class="w-full h-3 bg-secondary-container rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-error progress-bar-transition"
+                                    style="width: 92%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Entertainment Category Card -->
+                    <div
+                        class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow"
+                    >
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600"
+                                >
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-variation-settings: &quot;FILL&quot;
+                                                1;
+                                        "
+                                        >movie</span
+                                    >
+                                </div>
+                                <div>
+                                    <h4
+                                        class="font-headline-md text-headline-md text-on-surface"
+                                    >
+                                        Hiburan
+                                    </h4>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        4 Transaksi
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="font-label-sm text-label-sm text-on-surface-variant"
+                                >
+                                    Sisa
+                                </p>
+                                <p
+                                    class="font-tabular-nums text-tabular-nums text-on-surface"
+                                >
+                                    Rp 650.000
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div
+                                class="flex justify-between font-label-md text-label-md"
+                            >
+                                <span class="text-on-surface-variant"
+                                    >Rp 350.000 /
+                                    <span class="text-on-surface"
+                                        >Rp 1.000.000</span
+                                    ></span
+                                >
+                                <span class="text-primary font-bold">35%</span>
+                            </div>
+                            <div
+                                class="w-full h-3 bg-secondary-container rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-primary progress-bar-transition"
+                                    style="width: 35%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Shopping Category Card -->
+                    <div
+                        class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow"
+                    >
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600"
+                                >
+                                    <span
+                                        class="material-symbols-outlined"
+                                        style="
+                                            font-variation-settings: &quot;FILL&quot;
+                                                1;
+                                        "
+                                        >shopping_bag</span
+                                    >
+                                </div>
+                                <div>
+                                    <h4
+                                        class="font-headline-md text-headline-md text-on-surface"
+                                    >
+                                        Belanja
+                                    </h4>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        15 Transaksi
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p
+                                    class="font-label-sm text-label-sm text-on-surface-variant"
+                                >
+                                    Sisa
+                                </p>
+                                <p
+                                    class="font-tabular-nums text-tabular-nums text-on-surface"
+                                >
+                                    Rp 1.200.000
+                                </p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div
+                                class="flex justify-between font-label-md text-label-md"
+                            >
+                                <span class="text-on-surface-variant"
+                                    >Rp 800.000 /
+                                    <span class="text-on-surface"
+                                        >Rp 2.000.000</span
+                                    ></span
+                                >
+                                <span class="text-primary font-bold">40%</span>
+                            </div>
+                            <div
+                                class="w-full h-3 bg-secondary-container rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-primary progress-bar-transition"
+                                    style="width: 40%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Visual Content / Inspiration Section -->
+            <section class="mt-stack-lg">
+                <div
+                    class="relative w-full h-64 rounded-2xl overflow-hidden shadow-xl border border-outline-variant/30"
+                >
+                    <img
+                        class="w-full h-full object-cover"
+                        data-alt="A cinematic, ultra-realistic overhead shot of a minimalist workstation with a sleek laptop, a cup of specialty coffee, and a leather notebook. The lighting is soft morning sun streaming through a window, creating a serene and professional atmosphere. The color palette is dominated by muted teals, soft grays, and warm wood tones, perfectly aligned with the dependable advisor brand identity. The image feels aspirational and organized."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJd-HSN3KmmRaM--vdN77i9BG4E6oWP6E7pnAP-LI4UBu2dVfoxCs5hTTzaJXeg7qAkUN5kDgoGN0OL9hlXOjA4Yb75nBFbxQO3vDqhIgvbglbolCJsj-2hb_G-8ONaRXS5D3-gqtdOHQinEzkpBOJqYtZirK660S0SjBUvNclSUqoU0hMNb15UOw1TNZ5-k9lHwcOBCx915T31wdY1jhdm5w4XMPHGA2C-AC945vFxsf9XrZoM3ufQrQ8nfLxl67hcxMb7HQ8gds"
+                    />
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8"
+                    >
+                        <h2
+                            class="text-white font-headline-lg text-headline-lg"
+                        >
+                            Mulai Kebiasaan Baru
+                        </h2>
+                        <p
+                            class="text-white/80 font-body-md text-body-md max-w-xl"
+                        >
+                            Atur budget harian untuk mengontrol pengeluaran
+                            kecil yang sering terlupakan.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <!-- Bottom Navigation (Mobile Only) -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 bg-surface shadow-[0_-2px_10px_rgba(0,0,0,0.05)] h-16 flex items-center justify-around px-2 z-50"
+        >
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-sm text-[10px]">Dashboard</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="font-label-sm text-[10px]">Transaksi</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-primary">
+                <span
+                    class="material-symbols-outlined"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >account_balance_wallet</span
+                >
+                <span class="font-label-sm text-[10px] font-bold">Budget</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-sm text-[10px]">Laporan</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">settings</span>
+                <span class="font-label-sm text-[10px]">Lainnya</span>
+            </button>
+        </nav>
+        <script>
+            // Simple micro-interactions
+            document.querySelectorAll("button, a").forEach((elem) => {
+                elem.addEventListener("click", function (e) {
+                    if (
+                        this.tagName === "A" &&
+                        this.getAttribute("href") === "#"
+                    ) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Dynamic progress bar animation on load
+            window.addEventListener("load", () => {
+                const bars = document.querySelectorAll(
+                    ".progress-bar-transition",
+                );
+                bars.forEach((bar) => {
+                    const targetWidth = bar.style.width;
+                    bar.style.width = "0";
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, 100);
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -4,7 +4,7 @@ A fully offline personal finance tracking app. Built with Next.js + Capacitor.
 
 ## Download APK
 
-[![Download APK v1.0.0](https://img.shields.io/badge/Download-APK%20v1.0.0-brightgreen?style=for-the-badge&logo=android)](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk)
+[![Download APK v1.1.0](https://img.shields.io/badge/Download-APK%20v1.1.0-brightgreen?style=for-the-badge&logo=android)](https://github.com/codebytrisno/finansialku/releases/download/v1.0.0/app-debug.apk)
 
 ## Features
 
@@ -18,6 +18,11 @@ A fully offline personal finance tracking app. Built with Next.js + Capacitor.
 - **Dark Mode** — Light, Dark, or System theme
 - **Multi-Currency** — IDR, USD, EUR, MYR, SGD, JPY, KRW
 - **Built-in Calculator** — In transaction forms
+- **Toast Notifications** — Success/error feedback on all actions
+- **Skeleton Loading** — Smooth loading placeholders across all pages
+- **Responsive Design** — Optimized for mobile with touch-friendly targets
+- **Negative Balance Indicators** — Red coloring when balance goes negative
+- **Account Transactions** — Click any account card to view its transactions
 - **Offline-First** — All data stored in `localStorage`, no server required
 
 ## Tech Stack
@@ -27,7 +32,7 @@ A fully offline personal finance tracking app. Built with Next.js + Capacitor.
 | Framework | Next.js 16 (static export) |
 | UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript |
-| Icons | react-icons (Lucide) |
+| Icons | Material Symbols |
 | Charts | Custom SVG |
 | Mobile | Capacitor 8 |
 

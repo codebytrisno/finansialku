@@ -187,6 +187,7 @@ export function filterTransactions(
     .filter((t) => {
       if (filters.type !== "all" && t.type !== filters.type) return false;
       if (filters.categoryId && t.categoryId !== filters.categoryId) return false;
+      if (filters.accountId && t.accountId !== filters.accountId) return false;
       if (filters.dateFrom && t.transactionDate < filters.dateFrom) return false;
       if (filters.dateTo && t.transactionDate > filters.dateTo) return false;
       if (filters.search) {

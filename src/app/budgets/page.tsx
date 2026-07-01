@@ -19,6 +19,9 @@ import {
 } from "@/lib/types";
 import {
   formatCurrency,
+  getCurrencySymbol,
+  formatNumberInput,
+  parseNumberInput,
   getCurrentMonth,
   getCurrentYear,
   getMonthLabel,
@@ -30,24 +33,17 @@ import {
   getTotalSpent,
 } from "@/lib/utils";
 import { Icon } from "@/lib/icons";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
 import SummaryCard from "@/components/SummaryCard";
 import Modal from "@/components/Modal";
-import {
-  LuPlus,
-  LuPencil,
-  LuTrash2,
-  LuTarget,
-  LuTrendingDown,
-  LuCalendar,
-  LuCalendarRange,
-  LuCalendarDays,
-  LuChevronLeft,
-  LuChevronRight,
-} from "react-icons/lu";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useToast } from "@/components/Toast";
+import { Skeleton } from "@/components/Skeleton";
 
 type Tab = "monthly" | "weekly" | "yearly";
 
 export default function BudgetsPage() {
+  const { showToast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -64,6 +60,8 @@ export default function BudgetsPage() {
   const [formAmount, setFormAmount] = useState("");
   const [formPeriod, setFormPeriod] = useState<BudgetPeriod>("monthly");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(() => {
     setTransactions(getTransactions());
@@ -73,7 +71,10 @@ export default function BudgetsPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
+    requestAnimationFrame(() => {
+      loadData();
+      setLoading(false);
+    });
   }, [loadData]);
 
   const expenseCategories = categories.filter((c) => c.type === "expense");
@@ -133,18 +134,17 @@ export default function BudgetsPage() {
     };
     if (editBudget) {
       updateBudget(editBudget.id, data);
+      showToast("Anggaran berhasil diperbarui");
     } else {
       addBudget(data);
+      showToast("Anggaran berhasil ditambahkan");
     }
     setShowForm(false);
     loadData();
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Yakin ingin menghapus budget ini?")) {
-      deleteBudget(id);
-      loadData();
-    }
+    setDeleteConfirm(id);
   };
 
   const navigatePeriod = (direction: -1 | 1) => {
@@ -167,113 +167,129 @@ export default function BudgetsPage() {
     return selectedYear;
   };
 
-  const tabs: { id: Tab; label: string; icon: typeof LuCalendar }[] = [
-    { id: "monthly", label: "Bulanan", icon: LuCalendar },
-    { id: "weekly", label: "Mingguan", icon: LuCalendarDays },
-    { id: "yearly", label: "Tahunan", icon: LuCalendarRange },
+  const tabs: { id: Tab; label: string; icon: string }[] = [
+    { id: "monthly", label: "Bulanan", icon: "calendar_month" },
+    { id: "weekly", label: "Mingguan", icon: "date_range" },
+    { id: "yearly", label: "Tahunan", icon: "calendar_view_week" },
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-24 lg:pb-8">
+    <div className="mx-auto max-w-container-max space-y-stack-lg pb-24 lg:pb-0">
+      {loading && (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+            <Skeleton className="h-9 w-28 rounded-xl" />
+          </div>
+          <Skeleton className="h-10 rounded-xl" />
+          <Skeleton className="h-12 rounded-xl" />
+          <Skeleton className="h-[200px] rounded-xl" />
+          <div className="space-y-stack-sm">
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+          </div>
+        </>
+      )}
+      {!loading && (<>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-label-md sm:text-headline-lg font-bold text-on-surface truncate">
             Anggaran (Budget)
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-label-xs sm:text-body-md text-on-surface-variant truncate">
             Atur batas pengeluaran per kategori
           </p>
         </div>
         <button
           onClick={openAddForm}
-          className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
+          className="flex items-center gap-1 sm:gap-2 rounded-xl bg-primary px-3 py-2 sm:px-5 sm:py-2.5 text-label-xs sm:text-label-md font-medium text-on-primary hover:bg-primary-container hover:text-on-primary-container shrink-0"
         >
-          <LuPlus size={18} />
+          <MaterialSymbol icon="add" size={16} />
           <span className="hidden sm:inline">Tambah Budget</span>
         </button>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
-        {tabs.map((tab) => {
-          const IconComp = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-all ${
-                activeTab === tab.id
-                  ? "bg-white text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-300"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
-              }`}
-            >
-              <IconComp size={16} />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          );
-        })}
+      <div className="flex gap-1 bg-surface-container rounded-xl sm:rounded-2xl p-1 overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex flex-1 items-center justify-center gap-1 sm:gap-1.5 rounded-lg sm:rounded-xl py-2 text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap ${
+              activeTab === tab.id
+                ? "bg-surface-container-low text-primary shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            <MaterialSymbol icon={tab.icon} size={14} />
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {/* Period Navigation */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => navigatePeriod(-1)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
         >
-          <LuChevronLeft size={18} />
+          <MaterialSymbol icon="chevron_left" />
         </button>
-        <div className="flex-1 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-center text-sm font-semibold text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50">
+        <div className="flex-1 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-center text-label-md font-semibold text-on-surface">
           {getPeriodLabel()}
         </div>
         <button
           onClick={() => navigatePeriod(1)}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
         >
-          <LuChevronRight size={18} />
+          <MaterialSymbol icon="chevron_right" />
         </button>
       </div>
 
       {/* Budget Overview */}
       {currentBudgets.length > 0 && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <div className="bg-surface-container-low border border-outline-variant rounded-xl sm:rounded-2xl p-4 sm:p-gutter">
+          <h2 className="mb-3 sm:mb-4 text-label-xs sm:text-label-md font-semibold text-on-surface-variant">
             Ringkasan Anggaran
           </h2>
           <div className="mb-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Total Anggaran</span>
-              <span className="font-bold text-zinc-900 dark:text-zinc-100">
+            <div className="flex items-center justify-between text-body-md">
+              <span className="font-bold text-on-surface-variant">Total Anggaran</span>
+              <span className="font-bold text-on-surface">
                 {formatCurrency(totalBudget, settings.currency)}
               </span>
             </div>
-            <div className="mt-1 flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Total Pengeluaran (terbudget)</span>
-              <span className="font-bold text-red-600 dark:text-red-400">
+            <div className="mt-1 flex items-center justify-between text-body-md">
+              <span className="font-bold text-on-surface-variant">Total Pengeluaran (terbudget)</span>
+              <span className="font-bold text-error">
                 {formatCurrency(totalSpent, settings.currency)}
               </span>
             </div>
-            <div className="mt-1 flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Sisa</span>
-              <span className={`font-bold ${remainingBudget >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+            <div className="mt-1 flex items-center justify-between text-body-md">
+              <span className="font-bold text-on-surface-variant">Sisa</span>
+              <span className={`font-bold ${remainingBudget >= 0 ? "text-tertiary" : "text-error"}`}>
                 {formatCurrency(remainingBudget, settings.currency)}
               </span>
             </div>
           </div>
 
           {/* Overall Progress Bar */}
-          <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+          <div className="mb-1 flex items-center justify-between text-label-sm text-on-surface-variant">
             <span>Progress</span>
             <span>{budgetPercentage}%</span>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
             <div
               className={`h-full rounded-full transition-all ${
                 budgetPercentage >= 100
-                  ? "bg-red-500"
+                  ? "bg-error"
                   : budgetPercentage >= 80
-                  ? "bg-amber-500"
-                  : "bg-emerald-500"
+                  ? "bg-tertiary"
+                  : "bg-primary"
               }`}
               style={{ width: `${budgetPercentage}%` }}
             />
@@ -283,63 +299,64 @@ export default function BudgetsPage() {
 
       {/* Budget List */}
       {currentBudgets.length === 0 && budgetProgress.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-            <LuTarget size={32} />
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
+          <div className="mb-4 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant">
+            <MaterialSymbol icon="track_changes" size={28} />
           </div>
-          <h3 className="text-base font-semibold text-zinc-700 dark:text-zinc-300">
+          <h3 className="text-label-md sm:text-headline-md font-bold text-on-surface">
             Belum ada anggaran
           </h3>
-          <p className="mt-1 max-w-xs text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 max-w-xs text-label-sm sm:text-body-md text-on-surface-variant">
             Buat anggaran untuk mengontrol pengeluaranmu per kategori
           </p>
           <button
             onClick={openAddForm}
-            className="mt-4 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
+            className="mt-4 rounded-xl bg-primary px-4 sm:px-5 py-2 sm:py-2.5 text-label-sm sm:text-label-md font-medium text-on-primary hover:bg-primary-container hover:text-on-primary-container"
           >
             + Buat Anggaran
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-stack-sm">
           {budgetProgress.length === 0 ? (
-            // No budgets tracked for this period, show raw budgets
             currentBudgets.map((b) => {
               const cat = categories.find((c) => c.id === b.categoryId);
               return (
                 <div
                   key={b.id}
-                  className="group relative rounded-2xl border border-zinc-200 bg-white p-5 transition-all hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                  className="bg-surface-container-low border border-outline-variant rounded-xl sm:rounded-2xl p-4 sm:p-gutter"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: (cat?.color || "#6b7280") + "20" }}
+                        className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl"
+                        style={{ backgroundColor: (cat?.color || "#6b7280") + "20", color: cat?.color || "#6b7280" }}
                       >
-                        <Icon name={cat?.icon || "folder"} size={20} />
+                        <Icon name={cat?.icon || "folder"} size={18} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                        <p className="truncate text-label-xs sm:text-label-md font-bold text-on-surface">
                           {cat?.name || "Tanpa Kategori"}
                         </p>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-label-xs sm:text-label-sm text-on-surface-variant">
                           Budget: {formatCurrency(b.amount, settings.currency)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="flex gap-1 shrink-0">
                       <button
                         onClick={() => openEditForm(b)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
+                        className="p-1.5 sm:p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors active:scale-95"
+                        aria-label="Edit budget"
                       >
-                        <LuPencil size={14} />
+                        <MaterialSymbol icon="edit" size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(b.id)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-xs text-red-500 hover:bg-red-100 dark:bg-red-950/30"
+                        className="p-1.5 sm:p-2 text-error hover:bg-error-container rounded-lg transition-colors active:scale-95"
+                        aria-label="Hapus budget"
                       >
-                        <LuTrash2 size={14} />
+                        <MaterialSymbol icon="delete" size={18} />
                       </button>
                     </div>
                   </div>
@@ -347,7 +364,6 @@ export default function BudgetsPage() {
               );
             })
           ) : (
-            // Show budget with progress
             budgetProgress.map((bp) => {
               const isOverBudget = bp.percentage >= 100;
               const isWarning = bp.percentage >= 80 && bp.percentage < 100;
@@ -356,49 +372,51 @@ export default function BudgetsPage() {
               return (
                 <div
                   key={bp.budgetId}
-                  className="group relative rounded-2xl border border-zinc-200 bg-white p-5 transition-all hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                  className="bg-surface-container-low border border-outline-variant rounded-xl sm:rounded-2xl p-4 sm:p-gutter"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: bp.categoryColor + "20" }}
+                        className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl"
+                        style={{ backgroundColor: bp.categoryColor + "20", color: bp.categoryColor }}
                       >
-                        <Icon name={iconName} size={20} />
+                        <Icon name={iconName} size={18} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                        <p className="truncate text-label-xs sm:text-label-md font-bold text-on-surface">
                           {bp.categoryName}
                         </p>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-label-xs sm:text-label-sm text-on-surface-variant">
                           {formatCurrency(bp.spentAmount, settings.currency)} / {formatCurrency(bp.budgetAmount, settings.currency)}
                         </p>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex gap-1 shrink-0">
                         <button
                           onClick={() => {
                             const b = currentBudgets.find((b) => b.id === bp.budgetId);
                             if (b) openEditForm(b);
                           }}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
+                          className="p-1.5 sm:p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors active:scale-95"
+                          aria-label="Edit budget"
                         >
-                          <LuPencil size={14} />
+                          <MaterialSymbol icon="edit" size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(bp.budgetId)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-xs text-red-500 hover:bg-red-100 dark:bg-red-950/30"
+                          className="p-1.5 sm:p-2 text-error hover:bg-error-container rounded-lg transition-colors active:scale-95"
+                          aria-label="Hapus budget"
                         >
-                          <LuTrash2 size={14} />
+                          <MaterialSymbol icon="delete" size={18} />
                         </button>
                       </div>
                       {isOverBudget ? (
-                        <span className="text-xs font-semibold text-red-500">
+                        <span className="text-label-sm font-semibold text-error">
                           Over Budget! ({bp.percentage}%)
                         </span>
                       ) : (
-                        <span className="text-xs font-semibold text-emerald-500">
+                        <span className="text-label-sm font-semibold text-tertiary">
                           Sisa {formatCurrency(bp.remainingAmount, settings.currency)}
                         </span>
                       )}
@@ -406,19 +424,19 @@ export default function BudgetsPage() {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="mt-4">
-                    <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+                  <div className="mt-stack-sm">
+                    <div className="mb-1 flex items-center justify-between text-label-sm text-on-surface-variant">
                       <span>{bp.percentage}%</span>
                       <span>{formatCurrency(bp.remainingAmount, settings.currency)} tersisa</span>
                     </div>
-                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-surface-container-highest">
                       <div
                         className={`h-full rounded-full transition-all ${
                           isOverBudget
-                            ? "bg-red-500"
+                            ? "bg-error"
                             : isWarning
-                            ? "bg-amber-500"
-                            : "bg-emerald-500"
+                            ? "bg-tertiary"
+                            : "bg-primary"
                         }`}
                         style={{ width: `${bp.percentage}%` }}
                       />
@@ -442,56 +460,72 @@ export default function BudgetsPage() {
       >
         <div className="space-y-4">
           {/* Category */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Kategori Pengeluaran
             </label>
-            <select
-              value={formCategoryId}
-              onChange={(e) => setFormCategoryId(e.target.value)}
-              className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
-                errors.categoryId
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
-              }`}
-            >
-              <option value="">Pilih kategori</option>
-              {expenseCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            {errors.categoryId && <p className="mt-1 text-xs text-red-500">{errors.categoryId}</p>}
+            <div className={`grid grid-cols-2 gap-2 ${errors.categoryId ? "ring-2 ring-error rounded-xl p-1" : ""}`}>
+              {expenseCategories.length === 0 ? (
+                <p className="col-span-2 text-body-md text-on-surface-variant py-2">
+                  Belum ada kategori pengeluaran
+                </p>
+              ) : (
+                expenseCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setFormCategoryId(cat.id)}
+                    className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${
+                      formCategoryId === cat.id
+                        ? "border-primary bg-primary-container text-on-primary-container shadow-sm"
+                        : "border-outline-variant bg-surface-container-low text-on-surface hover:bg-surface-container-high"
+                    }`}
+                  >
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                      style={{
+                        backgroundColor: formCategoryId === cat.id ? cat.color + "30" : cat.color + "20",
+                        color: cat.color,
+                      }}
+                    >
+                      <Icon name={cat.icon} size={18} />
+                    </div>
+                    <span className="text-label-md font-medium truncate">{cat.name}</span>
+                  </button>
+                ))
+              )}
+            </div>
+            {errors.categoryId && <p className="mt-1 text-label-sm text-error">{errors.categoryId}</p>}
           </div>
 
           {/* Budget Amount */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Jumlah Anggaran
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
-                Rp
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-label-md font-semibold text-on-surface-variant">
+                {getCurrencySymbol(settings.currency)}
               </span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={formAmount}
-                onChange={(e) => setFormAmount(e.target.value)}
-                className={`w-full rounded-xl border bg-white py-3 pl-12 pr-4 text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+                value={formatNumberInput(formAmount)}
+                onChange={(e) => setFormAmount(parseNumberInput(e.target.value))}
+                className={`w-full bg-surface-container-low border rounded-xl py-3 pl-12 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant outline-none transition-colors focus:ring-2 focus:ring-primary focus:border-primary ${
                   errors.amount
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                    ? "border-error"
+                    : "border-outline-variant"
                 }`}
               />
             </div>
-            {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount}</p>}
+            {errors.amount && <p className="mt-1 text-label-sm text-error">{errors.amount}</p>}
           </div>
 
           {/* Period info */}
-          <div className="rounded-xl bg-zinc-50 p-3 dark:bg-zinc-800/50">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="rounded-xl bg-surface-container-high p-3">
+            <p className="text-label-sm text-on-surface-variant">
               Budget akan berlaku untuk periode <strong>{getPeriodLabel().toLowerCase()}</strong>
             </p>
           </div>
@@ -504,20 +538,36 @@ export default function BudgetsPage() {
                 setShowForm(false);
                 setEditBudget(null);
               }}
-              className="flex-1 rounded-xl border border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400"
+              className="flex-1 rounded-xl border border-outline-variant py-3 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
             >
               Batal
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="flex-1 rounded-xl bg-primary py-3 text-label-md font-semibold text-on-primary shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98]"
             >
               {editBudget ? "Simpan" : "Tambah"}
             </button>
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Hapus Anggaran"
+        message="Yakin ingin menghapus budget ini?"
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteBudget(deleteConfirm);
+            loadData();
+            showToast("Anggaran berhasil dihapus");
+          }
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+      </>)}
     </div>
   );
 }

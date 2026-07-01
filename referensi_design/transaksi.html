@@ -1,0 +1,894 @@
+<!doctype html>
+
+<html class="light" lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Transaksi - FinansialKu</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            .material-symbols-outlined {
+                font-variation-settings:
+                    "FILL" 0,
+                    "wght" 400,
+                    "GRAD" 0,
+                    "opsz" 24;
+            }
+            .filled-icon {
+                font-variation-settings: "FILL" 1;
+            }
+            /* Custom scrollbar for a cleaner UI */
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #bcc9c6;
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #6d7a77;
+            }
+        </style>
+        <!-- Tailwind Configuration -->
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "on-background": "#0b1c30",
+                            "surface-container-low": "#eff4ff",
+                            tertiary: "#006947",
+                            "on-primary": "#ffffff",
+                            primary: "#00685f",
+                            "outline-variant": "#bcc9c6",
+                            "secondary-container": "#d8e5e2",
+                            "surface-variant": "#d3e4fe",
+                            "on-secondary-container": "#5b6765",
+                            "on-tertiary": "#ffffff",
+                            "primary-fixed-dim": "#6bd8cb",
+                            "on-tertiary-fixed": "#002113",
+                            error: "#ba1a1a",
+                            "inverse-on-surface": "#eaf1ff",
+                            "inverse-primary": "#6bd8cb",
+                            "tertiary-container": "#00855b",
+                            "primary-fixed": "#89f5e7",
+                            "on-primary-fixed-variant": "#005049",
+                            "on-primary-fixed": "#00201d",
+                            "surface-container-high": "#dce9ff",
+                            "surface-container-highest": "#d3e4fe",
+                            background: "#f8f9ff",
+                            "error-container": "#ffdad6",
+                            "on-error": "#ffffff",
+                            "surface-container": "#e5eeff",
+                            "on-surface-variant": "#3d4947",
+                            "on-secondary-fixed-variant": "#3d4947",
+                            "inverse-surface": "#213145",
+                            "on-error-container": "#93000a",
+                            outline: "#6d7a77",
+                            "on-secondary-fixed": "#121e1c",
+                            "on-tertiary-fixed-variant": "#005236",
+                            secondary: "#55615f",
+                            "on-secondary": "#ffffff",
+                            "secondary-fixed": "#d8e5e2",
+                            "secondary-fixed-dim": "#bcc9c6",
+                            "surface-bright": "#f8f9ff",
+                            "on-primary-container": "#f4fffc",
+                            "surface-container-lowest": "#ffffff",
+                            "primary-container": "#008378",
+                            "surface-tint": "#006a61",
+                            "tertiary-fixed-dim": "#4edea3",
+                            "on-tertiary-container": "#f5fff6",
+                            "tertiary-fixed": "#6ffbbe",
+                            "surface-dim": "#cbdbf5",
+                            surface: "#f8f9ff",
+                            "on-surface": "#0b1c30",
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px",
+                        },
+                        spacing: {
+                            gutter: "1.5rem",
+                            "stack-xs": "0.25rem",
+                            "container-max": "1280px",
+                            "margin-mobile": "1rem",
+                            "stack-sm": "0.5rem",
+                            "stack-md": "1rem",
+                            "stack-lg": "2rem",
+                        },
+                        fontFamily: {
+                            "tabular-nums": ["Geist"],
+                            "headline-lg-mobile": ["Geist"],
+                            "headline-md": ["Geist"],
+                            "label-md": ["Geist"],
+                            "body-md": ["Geist"],
+                            "label-sm": ["Geist"],
+                            "body-lg": ["Geist"],
+                            display: ["Geist"],
+                            "headline-lg": ["Geist"],
+                        },
+                        fontSize: {
+                            "tabular-nums": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "600" },
+                            ],
+                            "headline-lg-mobile": [
+                                "24px",
+                                { lineHeight: "32px", fontWeight: "600" },
+                            ],
+                            "headline-md": [
+                                "20px",
+                                { lineHeight: "28px", fontWeight: "600" },
+                            ],
+                            "label-md": [
+                                "14px",
+                                {
+                                    lineHeight: "20px",
+                                    letterSpacing: "0.01em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "body-md": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "400" },
+                            ],
+                            "label-sm": [
+                                "12px",
+                                {
+                                    lineHeight: "16px",
+                                    letterSpacing: "0.02em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "body-lg": [
+                                "18px",
+                                { lineHeight: "28px", fontWeight: "400" },
+                            ],
+                            display: [
+                                "48px",
+                                {
+                                    lineHeight: "56px",
+                                    letterSpacing: "-0.02em",
+                                    fontWeight: "700",
+                                },
+                            ],
+                            "headline-lg": [
+                                "32px",
+                                {
+                                    lineHeight: "40px",
+                                    letterSpacing: "-0.01em",
+                                    fontWeight: "600",
+                                },
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside
+            class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col p-4 space-y-stack-md hidden md:flex z-50"
+        >
+            <div class="mb-8 px-2">
+                <h1
+                    class="font-headline-md text-headline-md font-extrabold text-primary"
+                >
+                    FinansialKu
+                </h1>
+                <p class="text-label-sm text-on-surface-variant">
+                    The Dependable Advisor
+                </p>
+            </div>
+            <nav class="flex-1 space-y-1">
+                <!-- Dashboard -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        data-icon="dashboard"
+                        >dashboard</span
+                    >
+                    <span>Dashboard</span>
+                </a>
+                <!-- Transaksi (Active) -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined filled-icon"
+                        data-icon="receipt_long"
+                        style="font-variation-settings: &quot;FILL&quot; 1"
+                        >receipt_long</span
+                    >
+                    <span>Transaksi</span>
+                </a>
+                <!-- Laporan -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        data-icon="analytics"
+                        >analytics</span
+                    >
+                    <span>Laporan</span>
+                </a>
+                <!-- Budget -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        data-icon="account_balance_wallet"
+                        >account_balance_wallet</span
+                    >
+                    <span>Budget</span>
+                </a>
+                <!-- Kategori -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined" data-icon="category"
+                        >category</span
+                    >
+                    <span>Kategori</span>
+                </a>
+                <!-- Akun -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span
+                        class="material-symbols-outlined"
+                        data-icon="account_balance"
+                        >account_balance</span
+                    >
+                    <span>Akun</span>
+                </a>
+                <!-- Pengaturan -->
+                <a
+                    class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all active:translate-x-1 duration-200 font-label-md text-label-md"
+                    href="#"
+                >
+                    <span class="material-symbols-outlined" data-icon="settings"
+                        >settings</span
+                    >
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+            <div class="mt-auto p-4 bg-primary rounded-xl text-on-primary">
+                <p class="font-label-md mb-2">Upgrade Premium</p>
+                <p class="text-xs opacity-80 mb-4">
+                    Akses laporan tak terbatas dan fitur cerdas lainnya.
+                </p>
+                <button
+                    class="w-full py-2 bg-primary-fixed text-on-primary-fixed rounded-lg font-bold text-sm hover:scale-105 transition-transform"
+                >
+                    Upgrade Sekarang
+                </button>
+            </div>
+        </aside>
+        <!-- Main Content Area -->
+        <main class="md:ml-64 min-h-screen flex flex-col">
+            <!-- TopAppBar -->
+            <header
+                class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-40 bg-surface shadow-sm"
+            >
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="relative max-w-md w-full hidden sm:block">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+                            data-icon="search"
+                            >search</span
+                        >
+                        <input
+                            class="w-full pl-10 pr-4 py-2 bg-surface-container rounded-full border-none focus:ring-2 focus:ring-primary text-body-md"
+                            placeholder="Cari transaksi..."
+                            type="text"
+                        />
+                    </div>
+                    <h2
+                        class="md:hidden font-headline-md text-headline-md font-bold text-primary"
+                    >
+                        Transaksi
+                    </h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button
+                        class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-md flex items-center gap-2 active:scale-95 duration-150 shadow-sm"
+                    >
+                        <span
+                            class="material-symbols-outlined text-[20px]"
+                            data-icon="add"
+                            >add</span
+                        >
+                        <span class="hidden sm:inline">Tambah Transaksi</span>
+                    </button>
+                    <div class="flex items-center gap-1">
+                        <button
+                            class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95 duration-150"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                data-icon="notifications"
+                                >notifications</span
+                            >
+                        </button>
+                        <button
+                            class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95 duration-150"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                data-icon="account_circle"
+                                >account_circle</span
+                            >
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <!-- Content Canvas -->
+            <div
+                class="p-gutter max-w-container-max mx-auto w-full space-y-stack-lg"
+            >
+                <!-- Filters & Sorting Card -->
+                <section
+                    class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/30"
+                >
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <!-- Date Range -->
+                        <div>
+                            <label
+                                class="block font-label-sm text-outline mb-2 uppercase tracking-wider"
+                                >Rentang Waktu</label
+                            >
+                            <div
+                                class="flex items-center gap-2 bg-surface-container rounded-lg px-3 py-2"
+                            >
+                                <span
+                                    class="material-symbols-outlined text-outline text-[20px]"
+                                    data-icon="calendar_today"
+                                    >calendar_today</span
+                                >
+                                <input
+                                    class="bg-transparent border-none p-0 text-body-md focus:ring-0 w-full"
+                                    readonly=""
+                                    type="text"
+                                    value="01 Jan 2024 - 31 Jan 2024"
+                                />
+                            </div>
+                        </div>
+                        <!-- Type Filter -->
+                        <div>
+                            <label
+                                class="block font-label-sm text-outline mb-2 uppercase tracking-wider"
+                                >Tipe</label
+                            >
+                            <select
+                                class="w-full bg-surface-container rounded-lg border-none px-3 py-2 text-body-md focus:ring-2 focus:ring-primary"
+                            >
+                                <option>Semua Tipe</option>
+                                <option>Pengeluaran</option>
+                                <option>Pemasukan</option>
+                            </select>
+                        </div>
+                        <!-- Category Filter -->
+                        <div>
+                            <label
+                                class="block font-label-sm text-outline mb-2 uppercase tracking-wider"
+                                >Kategori</label
+                            >
+                            <select
+                                class="w-full bg-surface-container rounded-lg border-none px-3 py-2 text-body-md focus:ring-2 focus:ring-primary"
+                            >
+                                <option>Semua Kategori</option>
+                                <option>Makanan &amp; Minuman</option>
+                                <option>Transportasi</option>
+                                <option>Hiburan</option>
+                                <option>Gaji</option>
+                            </select>
+                        </div>
+                        <!-- Sort -->
+                        <div>
+                            <label
+                                class="block font-label-sm text-outline mb-2 uppercase tracking-wider"
+                                >Urutkan</label
+                            >
+                            <select
+                                class="w-full bg-surface-container rounded-lg border-none px-3 py-2 text-body-md focus:ring-2 focus:ring-primary"
+                            >
+                                <option>Terbaru</option>
+                                <option>Terlama</option>
+                                <option>Jumlah Terbesar</option>
+                                <option>Jumlah Terkecil</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                <!-- Transaction Table Container -->
+                <section
+                    class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden"
+                >
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="border-b border-outline-variant/30 bg-surface-container-low/50"
+                                >
+                                    <th
+                                        class="px-6 py-4 font-label-md text-on-surface-variant"
+                                    >
+                                        Tanggal
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 font-label-md text-on-surface-variant"
+                                    >
+                                        Kategori &amp; Catatan
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 font-label-md text-on-surface-variant"
+                                    >
+                                        Akun
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 font-label-md text-on-surface-variant text-right"
+                                    >
+                                        Jumlah
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 font-label-md text-on-surface-variant text-center"
+                                    >
+                                        Aksi
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-outline-variant/20"
+                                id="transaction-list"
+                            >
+                                <!-- Row 1 -->
+                                <tr
+                                    class="hover:bg-surface-container-low/30 transition-colors group"
+                                >
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-tabular-nums text-tabular-nums"
+                                                >12 Jan 2024</span
+                                            >
+                                            <span class="text-xs text-outline"
+                                                >14:30 WIB</span
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="restaurant"
+                                                    >restaurant</span
+                                                >
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-label-md"
+                                                    >Makanan &amp; Minuman</span
+                                                >
+                                                <span
+                                                    class="text-sm text-outline"
+                                                    >Makan siang di Warung
+                                                    Padang</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <span
+                                            class="px-3 py-1 bg-surface-container text-on-secondary-container rounded-full text-xs font-medium"
+                                            >BCA Digital</span
+                                        >
+                                    </td>
+                                    <td
+                                        class="px-6 py-5 align-middle text-right"
+                                    >
+                                        <span
+                                            class="font-tabular-nums text-tabular-nums text-error"
+                                            >-Rp 45.000</span
+                                        >
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div
+                                            class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <button
+                                                class="p-2 text-primary hover:bg-primary-fixed/20 rounded-lg transition-colors"
+                                                title="Edit"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="edit"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors"
+                                                title="Hapus"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="delete"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 2 -->
+                                <tr
+                                    class="hover:bg-surface-container-low/30 transition-colors group"
+                                >
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-tabular-nums text-tabular-nums"
+                                                >11 Jan 2024</span
+                                            >
+                                            <span class="text-xs text-outline"
+                                                >09:00 WIB</span
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="payments"
+                                                    >payments</span
+                                                >
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-label-md"
+                                                    >Gaji</span
+                                                >
+                                                <span
+                                                    class="text-sm text-outline"
+                                                    >Gaji Pokok Januari
+                                                    2024</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <span
+                                            class="px-3 py-1 bg-surface-container text-on-secondary-container rounded-full text-xs font-medium"
+                                            >Mandiri</span
+                                        >
+                                    </td>
+                                    <td
+                                        class="px-6 py-5 align-middle text-right"
+                                    >
+                                        <span
+                                            class="font-tabular-nums text-tabular-nums text-tertiary"
+                                            >+Rp 8.500.000</span
+                                        >
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div
+                                            class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <button
+                                                class="p-2 text-primary hover:bg-primary-fixed/20 rounded-lg transition-colors"
+                                                title="Edit"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="edit"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors"
+                                                title="Hapus"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="delete"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Row 3 -->
+                                <tr
+                                    class="hover:bg-surface-container-low/30 transition-colors group"
+                                >
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-tabular-nums text-tabular-nums"
+                                                >10 Jan 2024</span
+                                            >
+                                            <span class="text-xs text-outline"
+                                                >18:15 WIB</span
+                                            >
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="directions_car"
+                                                    >directions_car</span
+                                                >
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-label-md"
+                                                    >Transportasi</span
+                                                >
+                                                <span
+                                                    class="text-sm text-outline"
+                                                    >Isi Bensin Mobil</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <span
+                                            class="px-3 py-1 bg-surface-container text-on-secondary-container rounded-full text-xs font-medium"
+                                            >Dompet Tunai</span
+                                        >
+                                    </td>
+                                    <td
+                                        class="px-6 py-5 align-middle text-right"
+                                    >
+                                        <span
+                                            class="font-tabular-nums text-tabular-nums text-error"
+                                            >-Rp 300.000</span
+                                        >
+                                    </td>
+                                    <td class="px-6 py-5 align-middle">
+                                        <div
+                                            class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <button
+                                                class="p-2 text-primary hover:bg-primary-fixed/20 rounded-lg transition-colors"
+                                                title="Edit"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="edit"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors"
+                                                title="Hapus"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-[20px]"
+                                                    data-icon="delete"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Empty State (Hidden by default, shown via JS if no rows) -->
+                    <div
+                        class="hidden flex-col items-center justify-center py-20 px-6 text-center"
+                        id="empty-state"
+                    >
+                        <div class="w-64 h-64 mb-6"></div>
+                        <h3
+                            class="font-headline-md text-headline-md font-bold text-on-surface mb-2"
+                        >
+                            Belum Ada Transaksi
+                        </h3>
+                        <p class="text-body-md text-outline max-w-sm">
+                            Mulai kelola keuangan Anda dengan menambahkan
+                            transaksi pertama Anda hari ini.
+                        </p>
+                        <button
+                            class="mt-8 px-6 py-3 bg-primary text-on-primary rounded-xl font-bold flex items-center gap-2 mx-auto"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                data-icon="add"
+                                >add</span
+                            >
+                            Buat Transaksi Baru
+                        </button>
+                    </div>
+                    <!-- Pagination -->
+                    <div
+                        class="px-6 py-4 bg-surface-container-low/30 border-t border-outline-variant/30 flex items-center justify-between"
+                    >
+                        <p class="text-sm text-outline">
+                            Menampilkan 3 dari 120 transaksi
+                        </p>
+                        <div class="flex items-center gap-1">
+                            <button
+                                class="p-2 rounded-lg hover:bg-surface-container transition-colors disabled:opacity-30"
+                                disabled=""
+                            >
+                                <span
+                                    class="material-symbols-outlined"
+                                    data-icon="chevron_left"
+                                    >chevron_left</span
+                                >
+                            </button>
+                            <button
+                                class="w-8 h-8 rounded-lg bg-primary text-on-primary font-bold text-sm"
+                            >
+                                1
+                            </button>
+                            <button
+                                class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface text-sm transition-colors"
+                            >
+                                2
+                            </button>
+                            <button
+                                class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface text-sm transition-colors"
+                            >
+                                3
+                            </button>
+                            <span class="px-1">...</span>
+                            <button
+                                class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface text-sm transition-colors"
+                            >
+                                12
+                            </button>
+                            <button
+                                class="p-2 rounded-lg hover:bg-surface-container transition-colors"
+                            >
+                                <span
+                                    class="material-symbols-outlined"
+                                    data-icon="chevron_right"
+                                    >chevron_right</span
+                                >
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        <!-- Floating Action Button (Mobile) -->
+        <button
+            class="md:hidden fixed right-6 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform z-50"
+        >
+            <span class="material-symbols-outlined text-[32px]" data-icon="add"
+                >add</span
+            >
+        </button>
+        <!-- Bottom Navigation (Mobile Only) -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface shadow-[0_-1px_10px_rgba(0,0,0,0.05)] flex items-center justify-around px-4 z-50"
+        >
+            <a
+                class="flex flex-col items-center text-on-surface-variant gap-1"
+                href="#"
+            >
+                <span class="material-symbols-outlined" data-icon="dashboard"
+                    >dashboard</span
+                >
+                <span class="text-[10px]">Dashboard</span>
+            </a>
+            <a
+                class="flex flex-col items-center text-primary font-bold gap-1"
+                href="#"
+            >
+                <span
+                    class="material-symbols-outlined filled-icon"
+                    data-icon="receipt_long"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >receipt_long</span
+                >
+                <span class="text-[10px]">Transaksi</span>
+            </a>
+            <div class="w-10"></div>
+            <!-- Spacer for FAB -->
+            <a
+                class="flex flex-col items-center text-on-surface-variant gap-1"
+                href="#"
+            >
+                <span class="material-symbols-outlined" data-icon="analytics"
+                    >analytics</span
+                >
+                <span class="text-[10px]">Laporan</span>
+            </a>
+            <a
+                class="flex flex-col items-center text-on-surface-variant gap-1"
+                href="#"
+            >
+                <span class="material-symbols-outlined" data-icon="person"
+                    >person</span
+                >
+                <span class="text-[10px]">Profil</span>
+            </a>
+        </nav>
+        <script>
+            // Simple Interaction logic
+            document.querySelectorAll("button, a").forEach((el) => {
+                el.addEventListener("click", (e) => {
+                    // If it's the delete button, simulate row removal for demo purposes
+                    const deleteBtn = el.closest('button[title="Hapus"]');
+                    if (deleteBtn) {
+                        const row = deleteBtn.closest("tr");
+                        row.style.transition = "all 0.3s ease";
+                        row.style.opacity = "0";
+                        row.style.transform = "translateX(20px)";
+                        setTimeout(() => {
+                            row.remove();
+                            checkEmptyState();
+                        }, 300);
+                    }
+                });
+            });
+
+            function checkEmptyState() {
+                const tableBody = document.getElementById("transaction-list");
+                const emptyState = document.getElementById("empty-state");
+                if (tableBody && tableBody.children.length === 0) {
+                    tableBody.parentElement.classList.add("hidden");
+                    emptyState.classList.remove("hidden");
+                    emptyState.classList.add("flex");
+                }
+            }
+
+            // Search Bar Focus Effect
+            const searchInput = document.querySelector('input[type="text"]');
+            if (searchInput) {
+                searchInput.addEventListener("focus", () => {
+                    searchInput.parentElement.classList.add(
+                        "ring-2",
+                        "ring-primary/50",
+                    );
+                });
+                searchInput.addEventListener("blur", () => {
+                    searchInput.parentElement.classList.remove(
+                        "ring-2",
+                        "ring-primary/50",
+                    );
+                });
+            }
+        </script>
+    </body>
+</html>

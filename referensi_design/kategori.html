@@ -1,0 +1,1015 @@
+<!doctype html>
+
+<html class="light" lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Kelola Kategori - FinansialKu</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "on-secondary-fixed": "#121e1c",
+                            "primary-container": "#008378",
+                            "surface-container": "#e5eeff",
+                            "on-surface": "#0b1c30",
+                            "on-error-container": "#93000a",
+                            background: "#f8f9ff",
+                            "tertiary-fixed": "#6ffbbe",
+                            "surface-container-highest": "#d3e4fe",
+                            "on-secondary": "#ffffff",
+                            "on-primary-container": "#f4fffc",
+                            "on-secondary-fixed-variant": "#3d4947",
+                            "on-secondary-container": "#5b6765",
+                            "primary-fixed-dim": "#6bd8cb",
+                            tertiary: "#006947",
+                            "on-surface-variant": "#3d4947",
+                            "tertiary-container": "#00855b",
+                            "on-background": "#0b1c30",
+                            "surface-container-lowest": "#ffffff",
+                            "on-error": "#ffffff",
+                            primary: "#00685f",
+                            "surface-container-low": "#eff4ff",
+                            outline: "#6d7a77",
+                            error: "#ba1a1a",
+                            secondary: "#55615f",
+                            "on-tertiary-fixed-variant": "#005236",
+                            "on-tertiary-fixed": "#002113",
+                            "surface-variant": "#d3e4fe",
+                            "secondary-container": "#d8e5e2",
+                            "secondary-fixed": "#d8e5e2",
+                            "outline-variant": "#bcc9c6",
+                            "on-primary": "#ffffff",
+                            "surface-bright": "#f8f9ff",
+                            "inverse-primary": "#6bd8cb",
+                            "on-primary-fixed-variant": "#005049",
+                            "on-primary-fixed": "#00201d",
+                            surface: "#f8f9ff",
+                            "on-tertiary-container": "#f5fff6",
+                            "on-tertiary": "#ffffff",
+                            "tertiary-fixed-dim": "#4edea3",
+                            "surface-tint": "#006a61",
+                            "secondary-fixed-dim": "#bcc9c6",
+                            "inverse-on-surface": "#eaf1ff",
+                            "primary-fixed": "#89f5e7",
+                            "surface-dim": "#cbdbf5",
+                            "inverse-surface": "#213145",
+                            "surface-container-high": "#dce9ff",
+                            "error-container": "#ffdad6",
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px",
+                        },
+                        spacing: {
+                            "stack-xs": "0.25rem",
+                            "stack-sm": "0.5rem",
+                            "stack-md": "1rem",
+                            "stack-lg": "2rem",
+                            gutter: "1.5rem",
+                            "container-max": "1280px",
+                            "margin-mobile": "1rem",
+                        },
+                        fontFamily: {
+                            "label-md": ["Geist"],
+                            "headline-md": ["Geist"],
+                            "body-md": ["Geist"],
+                            "label-sm": ["Geist"],
+                            "tabular-nums": ["Geist"],
+                            "body-lg": ["Geist"],
+                            "headline-lg": ["Geist"],
+                            display: ["Geist"],
+                            "headline-lg-mobile": ["Geist"],
+                        },
+                        fontSize: {
+                            "label-md": [
+                                "14px",
+                                {
+                                    lineHeight: "20px",
+                                    letterSpacing: "0.01em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "headline-md": [
+                                "20px",
+                                { lineHeight: "28px", fontWeight: "600" },
+                            ],
+                            "body-md": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "400" },
+                            ],
+                            "label-sm": [
+                                "12px",
+                                {
+                                    lineHeight: "16px",
+                                    letterSpacing: "0.02em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "tabular-nums": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "600" },
+                            ],
+                            "body-lg": [
+                                "18px",
+                                { lineHeight: "28px", fontWeight: "400" },
+                            ],
+                            "headline-lg": [
+                                "32px",
+                                {
+                                    lineHeight: "40px",
+                                    letterSpacing: "-0.01em",
+                                    fontWeight: "600",
+                                },
+                            ],
+                            display: [
+                                "48px",
+                                {
+                                    lineHeight: "56px",
+                                    letterSpacing: "-0.02em",
+                                    fontWeight: "700",
+                                },
+                            ],
+                            "headline-lg-mobile": [
+                                "24px",
+                                { lineHeight: "32px", fontWeight: "600" },
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            body {
+                font-family: "Geist", sans-serif;
+                background-color: #f8f9ff;
+            }
+            .material-symbols-outlined {
+                font-variation-settings:
+                    "FILL" 0,
+                    "wght" 400,
+                    "GRAD" 0,
+                    "opsz" 24;
+                display: inline-block;
+                line-height: 1;
+                text-transform: none;
+                letter-spacing: normal;
+                word-wrap: normal;
+                white-space: nowrap;
+                direction: ltr;
+            }
+            .category-card:hover .action-buttons {
+                opacity: 1;
+            }
+            .action-buttons {
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+        </style>
+    </head>
+    <body class="bg-surface text-on-surface">
+        <!-- TopNavBar -->
+        <header
+            class="bg-surface dark:bg-on-background shadow-sm flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-40"
+        >
+            <div class="flex items-center gap-stack-md">
+                <span
+                    class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed"
+                    >FinansialKu</span
+                >
+            </div>
+            <div class="hidden md:flex flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+                        >search</span
+                    >
+                    <input
+                        class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary text-body-md"
+                        placeholder="Cari kategori..."
+                        type="text"
+                    />
+                </div>
+            </div>
+            <div class="flex items-center gap-stack-md">
+                <button
+                    class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md flex items-center gap-2 active:scale-95 duration-150"
+                >
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Tambah Transaksi</span>
+                </button>
+                <button
+                    class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors"
+                >
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button
+                    class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors"
+                >
+                    <span class="material-symbols-outlined"
+                        >account_circle</span
+                    >
+                </button>
+            </div>
+        </header>
+        <div class="flex">
+            <!-- SideNavBar -->
+            <aside
+                class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant flex flex-col p-4 space-y-stack-md hidden md:flex pt-20"
+            >
+                <nav class="flex-1 space-y-1">
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >receipt_long</span
+                        >
+                        <span>Transaksi</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">analytics</span>
+                        <span>Laporan</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >account_balance_wallet</span
+                        >
+                        <span>Budget</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 bg-secondary-container dark:bg-primary-container text-on-secondary-container dark:text-on-primary-container rounded-lg font-bold font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">category</span>
+                        <span>Kategori</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >account_balance</span
+                        >
+                        <span>Akun</span>
+                    </a>
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg font-label-md transition-all active:translate-x-1"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">settings</span>
+                        <span>Pengaturan</span>
+                    </a>
+                </nav>
+                <div
+                    class="mt-auto p-4 bg-primary-container rounded-xl text-on-primary-container"
+                >
+                    <p class="font-label-sm uppercase tracking-wider mb-1">
+                        PRO PLAN
+                    </p>
+                    <p class="font-body-md font-bold mb-3">Upgrade Premium</p>
+                    <button
+                        class="w-full bg-surface-container-lowest text-primary py-2 rounded-lg font-label-md font-bold"
+                    >
+                        Aktifkan
+                    </button>
+                </div>
+            </aside>
+            <!-- Main Content -->
+            <main class="flex-1 md:ml-64 p-6 md:p-8">
+                <div class="max-w-container-max mx-auto">
+                    <div
+                        class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"
+                    >
+                        <div>
+                            <h1
+                                class="font-headline-lg text-headline-lg text-on-surface"
+                            >
+                                Kelola Kategori
+                            </h1>
+                            <p class="font-body-md text-on-surface-variant">
+                                Atur kategori keuangan Anda untuk pelaporan yang
+                                lebih akurat.
+                            </p>
+                        </div>
+                        <button
+                            class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                        >
+                            <span class="material-symbols-outlined"
+                                >add_circle</span
+                            >
+                            <span>Tambah Kategori</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <!-- Pengeluaran Section (Expenses) -->
+                        <section class="space-y-6">
+                            <div
+                                class="flex items-center gap-3 pb-2 border-b border-outline-variant"
+                            >
+                                <span
+                                    class="material-symbols-outlined text-error"
+                                    style="
+                                        font-variation-settings: &quot;FILL&quot;
+                                            1;
+                                    "
+                                    >arrow_circle_down</span
+                                >
+                                <h2
+                                    class="font-headline-md text-headline-md text-on-surface"
+                                >
+                                    Pengeluaran
+                                </h2>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Category Item: Makanan -->
+                                <div
+                                    class="category-card group bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 transition-all hover:shadow-md"
+                                >
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center text-error"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-2xl"
+                                                    >restaurant</span
+                                                >
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-body-md font-bold text-on-surface"
+                                                >
+                                                    Makanan &amp; Minuman
+                                                </h3>
+                                                <p
+                                                    class="font-label-sm text-on-surface-variant"
+                                                >
+                                                    8 Sub-kategori
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="action-buttons flex gap-1">
+                                            <button
+                                                class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg"
+                                                title="Edit"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container rounded-lg"
+                                                title="Hapus"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Subcategories Grid -->
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-16"
+                                    >
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-error"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Restoran</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-error"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Gofood/Grab</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-error"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Kopi</span
+                                            >
+                                        </div>
+                                        <button
+                                            class="p-2 rounded-lg border border-dashed border-outline-variant flex items-center justify-center gap-1 hover:bg-surface-container-low transition-colors"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-sm"
+                                                >add</span
+                                            >
+                                            <span
+                                                class="font-label-sm text-on-surface-variant"
+                                                >Sub</span
+                                            >
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Category Item: Transportasi -->
+                                <div
+                                    class="category-card group bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 transition-all hover:shadow-md"
+                                >
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-2xl"
+                                                    >commute</span
+                                                >
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-body-md font-bold text-on-surface"
+                                                >
+                                                    Transportasi
+                                                </h3>
+                                                <p
+                                                    class="font-label-sm text-on-surface-variant"
+                                                >
+                                                    3 Sub-kategori
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="action-buttons flex gap-1">
+                                            <button
+                                                class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-16"
+                                    >
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-blue-500"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Bensin</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-blue-500"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Parkir</span
+                                            >
+                                        </div>
+                                        <button
+                                            class="p-2 rounded-lg border border-dashed border-outline-variant flex items-center justify-center gap-1 hover:bg-surface-container-low transition-colors"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-sm"
+                                                >add</span
+                                            >
+                                            <span
+                                                class="font-label-sm text-on-surface-variant"
+                                                >Sub</span
+                                            >
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Category Item: Belanja -->
+                                <div
+                                    class="category-card group bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 transition-all hover:shadow-md"
+                                >
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-2xl"
+                                                    >shopping_bag</span
+                                                >
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-body-md font-bold text-on-surface"
+                                                >
+                                                    Belanja
+                                                </h3>
+                                                <p
+                                                    class="font-label-sm text-on-surface-variant"
+                                                >
+                                                    5 Sub-kategori
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="action-buttons flex gap-1">
+                                            <button
+                                                class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-16"
+                                    >
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-orange-500"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >E-commerce</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-orange-500"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Baju</span
+                                            >
+                                        </div>
+                                        <button
+                                            class="p-2 rounded-lg border border-dashed border-outline-variant flex items-center justify-center gap-1 hover:bg-surface-container-low transition-colors"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-sm"
+                                                >add</span
+                                            >
+                                            <span
+                                                class="font-label-sm text-on-surface-variant"
+                                                >Sub</span
+                                            >
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- Pemasukan Section (Income) -->
+                        <section class="space-y-6">
+                            <div
+                                class="flex items-center gap-3 pb-2 border-b border-outline-variant"
+                            >
+                                <span
+                                    class="material-symbols-outlined text-primary"
+                                    style="
+                                        font-variation-settings: &quot;FILL&quot;
+                                            1;
+                                    "
+                                    >arrow_circle_up</span
+                                >
+                                <h2
+                                    class="font-headline-md text-headline-md text-on-surface"
+                                >
+                                    Pemasukan
+                                </h2>
+                            </div>
+                            <div class="space-y-4">
+                                <!-- Category Item: Gaji -->
+                                <div
+                                    class="category-card group bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 transition-all hover:shadow-md"
+                                >
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-2xl"
+                                                    >payments</span
+                                                >
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-body-md font-bold text-on-surface"
+                                                >
+                                                    Gaji &amp; Upah
+                                                </h3>
+                                                <p
+                                                    class="font-label-sm text-on-surface-variant"
+                                                >
+                                                    2 Sub-kategori
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="action-buttons flex gap-1">
+                                            <button
+                                                class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-16"
+                                    >
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-primary"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Gaji Pokok</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-primary"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Bonus</span
+                                            >
+                                        </div>
+                                        <button
+                                            class="p-2 rounded-lg border border-dashed border-outline-variant flex items-center justify-center gap-1 hover:bg-surface-container-low transition-colors"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-sm"
+                                                >add</span
+                                            >
+                                            <span
+                                                class="font-label-sm text-on-surface-variant"
+                                                >Sub</span
+                                            >
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Category Item: Investasi -->
+                                <div
+                                    class="category-card group bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/30 transition-all hover:shadow-md"
+                                >
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-12 h-12 rounded-xl bg-tertiary-container/20 flex items-center justify-center text-tertiary"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-2xl"
+                                                    >trending_up</span
+                                                >
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-body-md font-bold text-on-surface"
+                                                >
+                                                    Investasi
+                                                </h3>
+                                                <p
+                                                    class="font-label-sm text-on-surface-variant"
+                                                >
+                                                    4 Sub-kategori
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="action-buttons flex gap-1">
+                                            <button
+                                                class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >edit</span
+                                                >
+                                            </button>
+                                            <button
+                                                class="p-2 text-error hover:bg-error-container rounded-lg"
+                                            >
+                                                <span
+                                                    class="material-symbols-outlined text-body-md"
+                                                    >delete</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="grid grid-cols-2 sm:grid-cols-3 gap-2 pl-16"
+                                    >
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-tertiary"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Dividen</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="bg-surface p-2 rounded-lg flex items-center gap-2 border border-outline-variant/20"
+                                        >
+                                            <span
+                                                class="w-1.5 h-1.5 rounded-full bg-tertiary"
+                                            ></span>
+                                            <span
+                                                class="font-label-sm text-on-surface truncate"
+                                                >Reksadana</span
+                                            >
+                                        </div>
+                                        <button
+                                            class="p-2 rounded-lg border border-dashed border-outline-variant flex items-center justify-center gap-1 hover:bg-surface-container-low transition-colors"
+                                        >
+                                            <span
+                                                class="material-symbols-outlined text-sm"
+                                                >add</span
+                                            >
+                                            <span
+                                                class="font-label-sm text-on-surface-variant"
+                                                >Sub</span
+                                            >
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <!-- Empty State Suggestion / Tips -->
+                    <div
+                        class="mt-12 p-8 bg-surface-container rounded-2xl border-2 border-dashed border-primary/20 text-center"
+                    >
+                        <div
+                            class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"
+                        >
+                            <span
+                                class="material-symbols-outlined text-primary text-3xl"
+                                >lightbulb</span
+                            >
+                        </div>
+                        <h3 class="font-headline-md text-on-surface mb-2">
+                            Tips Manajemen Keuangan
+                        </h3>
+                        <p
+                            class="font-body-md text-on-surface-variant max-w-lg mx-auto"
+                        >
+                            Gunakan sub-kategori untuk melacak pengeluaran yang
+                            lebih detail. Misalnya, kategori "Kesehatan" dapat
+                            memiliki sub-kategori "Asuransi", "Obat", dan
+                            "Dokter".
+                        </p>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Mobile Navigation -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 bg-surface shadow-2xl flex justify-around items-center h-16 px-4 z-50"
+        >
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="text-[10px] font-label-sm">Beranda</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="text-[10px] font-label-sm">Riwayat</span>
+            </button>
+            <button
+                class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center -mt-8 shadow-lg"
+            >
+                <span class="material-symbols-outlined">add</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-primary">
+                <span
+                    class="material-symbols-outlined"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >category</span
+                >
+                <span class="text-[10px] font-label-sm">Kategori</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">settings</span>
+                <span class="text-[10px] font-label-sm">Akun</span>
+            </button>
+        </nav>
+        <!-- Modal Mockup (Hidden by default) -->
+        <div
+            class="hidden fixed inset-0 bg-on-background/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+            id="addCategoryModal"
+        >
+            <div
+                class="bg-surface w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+            >
+                <div
+                    class="p-6 border-b border-outline-variant flex justify-between items-center"
+                >
+                    <h2 class="font-headline-md text-on-surface">
+                        Tambah Kategori Baru
+                    </h2>
+                    <button
+                        class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant"
+                    >
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="font-label-md text-on-surface-variant"
+                            >Nama Kategori</label
+                        >
+                        <input
+                            class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-body-md"
+                            placeholder="Contoh: Hiburan"
+                            type="text"
+                        />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label-md text-on-surface-variant"
+                            >Jenis</label
+                        >
+                        <div class="grid grid-cols-2 gap-3">
+                            <button
+                                class="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-primary bg-primary/5 text-primary font-bold"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >arrow_circle_down</span
+                                >
+                                Pengeluaran
+                            </button>
+                            <button
+                                class="flex items-center justify-center gap-2 p-3 rounded-xl border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container-low"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >arrow_circle_up</span
+                                >
+                                Pemasukan
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label-md text-on-surface-variant"
+                            >Warna &amp; Ikon</label
+                        >
+                        <div class="flex flex-wrap gap-3">
+                            <button
+                                class="w-10 h-10 rounded-full bg-error flex items-center justify-center text-white"
+                            >
+                                <span class="material-symbols-outlined text-sm"
+                                    >star</span
+                                >
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white"
+                            >
+                                <span class="material-symbols-outlined text-sm"
+                                    >home</span
+                                >
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white"
+                            >
+                                <span class="material-symbols-outlined text-sm"
+                                    >shopping_cart</span
+                                >
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white"
+                            >
+                                <span class="material-symbols-outlined text-sm"
+                                    >movie</span
+                                >
+                            </button>
+                            <button
+                                class="w-10 h-10 rounded-full bg-tertiary flex items-center justify-center text-white"
+                            >
+                                <span class="material-symbols-outlined text-sm"
+                                    >flight</span
+                                >
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 bg-surface-container-low flex gap-3">
+                    <button
+                        class="flex-1 py-3 rounded-xl font-bold border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        class="flex-1 py-3 rounded-xl font-bold bg-primary text-on-primary shadow-sm hover:brightness-110 active:scale-95 transition-all"
+                    >
+                        Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+            // Simple micro-interactions
+            document.querySelectorAll(".category-card").forEach((card) => {
+                card.addEventListener("mouseenter", () => {
+                    card.classList.add("scale-[1.01]");
+                });
+                card.addEventListener("mouseleave", () => {
+                    card.classList.remove("scale-[1.01]");
+                });
+            });
+        </script>
+    </body>
+</html>

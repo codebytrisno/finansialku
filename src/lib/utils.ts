@@ -41,6 +41,16 @@ export function getCurrencySymbol(code: string): string {
   return opt?.symbol || "Rp";
 }
 
+export function formatNumberInput(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+export function parseNumberInput(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
 export function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr + "T00:00:00").toLocaleDateString("id-ID", {

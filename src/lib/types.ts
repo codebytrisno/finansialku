@@ -180,6 +180,7 @@ export interface TransactionFilters {
   search: string;
   type: TransactionType | "all";
   categoryId: string;
+  accountId: string;
   dateFrom: string;
   dateTo: string;
   sortField: SortField;

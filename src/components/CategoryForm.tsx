@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { type Category, type TransactionType } from "@/lib/types";
 import { Icon, CATEGORY_ICON_NAMES } from "@/lib/icons";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
 import { getTopLevelCategories } from "@/lib/store";
-import { LuArrowDown, LuArrowUp } from "react-icons/lu";
 
 const COLORS = [
   "#ef4444", "#f97316", "#f59e0b", "#eab308", "#22c55e",
@@ -15,6 +15,7 @@ const COLORS = [
 
 interface CategoryFormProps {
   initialData?: Category | null;
+  presetParentId?: string | null;
   onSubmit: (data: {
     name: string;
     type: TransactionType;
@@ -27,6 +28,7 @@ interface CategoryFormProps {
 
 export default function CategoryForm({
   initialData,
+  presetParentId,
   onSubmit,
   onCancel,
 }: CategoryFormProps) {
@@ -34,7 +36,9 @@ export default function CategoryForm({
   const [type, setType] = useState<TransactionType>(initialData?.type || "expense");
   const [color, setColor] = useState(initialData?.color || "#22c55e");
   const [icon, setIcon] = useState(initialData?.icon || "wallet");
-  const [parentId, setParentId] = useState<string | null>(initialData?.parentId || null);
+  const [parentId, setParentId] = useState<string | null>(
+    initialData?.parentId || presetParentId || null
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const topCategories = getTopLevelCategories(type);
@@ -64,103 +68,102 @@ export default function CategoryForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Type Toggle */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Tipe Kategori
+      <div className="space-y-1.5">
+        <label className="text-label-md text-on-surface-variant">
+          Jenis
         </label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => {
               setType("expense");
-              setParentId(null);
+              setParentId(presetParentId || null);
             }}
-            className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-2 p-3 rounded-xl font-bold transition-all ${
               type === "expense"
-                ? "bg-red-500 text-white shadow-sm"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                ? "border-2 border-primary bg-primary/5 text-primary"
+                : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-low"
             }`}
           >
-            <LuArrowDown size={16} />
+            <MaterialSymbol icon="arrow_circle_down" />
             Pengeluaran
           </button>
           <button
             type="button"
             onClick={() => {
               setType("income");
-              setParentId(null);
+              setParentId(presetParentId || null);
             }}
-            className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-2 p-3 rounded-xl font-bold transition-all ${
               type === "income"
-                ? "bg-emerald-500 text-white shadow-sm"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                ? "border-2 border-primary bg-primary/5 text-primary"
+                : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-low"
             }`}
           >
-            <LuArrowUp size={16} />
+            <MaterialSymbol icon="arrow_circle_up" />
             Pemasukan
           </button>
         </div>
       </div>
 
       {/* Name */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+      <div className="space-y-1.5">
+        <label className="text-label-md text-on-surface-variant">
           Nama Kategori
         </label>
         <input
           type="text"
-          placeholder="Nama kategori..."
+          placeholder="Contoh: Hiburan"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 transition-colors focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+          className={`w-full bg-surface-container-low border rounded-xl px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant outline-none transition-colors focus:ring-2 focus:ring-primary focus:border-primary ${
             errors.name
-              ? "border-red-400 focus:ring-red-400"
-              : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700 dark:focus:ring-emerald-400"
+              ? "border-error"
+              : "border-outline-variant"
           }`}
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-red-500">{errors.name}</p>
+          <p className="mt-1 text-label-sm text-error">{errors.name}</p>
         )}
       </div>
 
-      {/* Parent Category (Sub-Category) */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Kategori Induk <span className="text-zinc-400">(opsional)</span>
-        </label>
-        <p className="mb-2 text-xs text-zinc-400">
-          Pilih kategori induk jika ini adalah sub-kategori
-        </p>
-        <select
-          value={parentId || ""}
-          onChange={(e) => setParentId(e.target.value || null)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-        >
-          <option value="">Kategori Utama (bukan sub-kategori)</option>
-          {topCategories
-            .filter((c) => c.id !== initialData?.id)
-            .map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-        </select>
-        {parentId && (
-          <p className="mt-1 text-xs text-emerald-500">
-            Akan menjadi sub-kategori
+      {!initialData && (
+        <div className="space-y-1.5">
+          <label className="text-label-md text-on-surface-variant">
+            Kategori Induk <span className="text-on-surface-variant opacity-60">(opsional)</span>
+          </label>
+          <p className="text-label-sm text-on-surface-variant">
+            Pilih kategori induk jika ini adalah sub-kategori
           </p>
-        )}
-        {errors.parentId && (
-          <p className="mt-1 text-xs text-red-500">{errors.parentId}</p>
-        )}
-      </div>
+          <select
+            value={parentId || ""}
+            onChange={(e) => setParentId(e.target.value || null)}
+            className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 text-body-md text-on-surface outline-none transition-colors focus:ring-2 focus:ring-primary focus:border-primary"
+          >
+            <option value="">Kategori Utama (bukan sub-kategori)</option>
+            {topCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+          </select>
+          {parentId && (
+            <p className="mt-1 text-label-sm text-tertiary">
+              Akan menjadi sub-kategori
+            </p>
+          )}
+          {errors.parentId && (
+            <p className="mt-1 text-label-sm text-error">{errors.parentId}</p>
+          )}
+        </div>
+      )}
 
       {/* Color */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Warna
+      <div className="space-y-1.5">
+        <label className="text-label-md text-on-surface-variant">
+          Warna &amp; Ikon
         </label>
         <div className="flex flex-wrap gap-2">
           {COLORS.map((c) => (
@@ -168,9 +171,9 @@ export default function CategoryForm({
               key={c}
               type="button"
               onClick={() => setColor(c)}
-              className={`h-8 w-8 rounded-xl transition-all ${
+              className={`h-10 w-10 rounded-full transition-all ${
                 color === c
-                  ? "ring-2 ring-zinc-900 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-900"
+                  ? "ring-2 ring-primary ring-offset-2 ring-offset-surface"
                   : ""
               }`}
               style={{ backgroundColor: c }}
@@ -180,26 +183,21 @@ export default function CategoryForm({
       </div>
 
       {/* Icon */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Ikon
-        </label>
-        <div className="grid grid-cols-7 gap-2">
-          {CATEGORY_ICON_NAMES.map((iconName) => (
-            <button
-              key={iconName}
-              type="button"
-              onClick={() => setIcon(iconName)}
-              className={`flex items-center justify-center rounded-xl p-2.5 transition-all ${
-                icon === iconName
-                  ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-300"
-                  : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-              }`}
-            >
-              <Icon name={iconName} size={18} />
-            </button>
-          ))}
-        </div>
+      <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
+        {CATEGORY_ICON_NAMES.map((iconName) => (
+          <button
+            key={iconName}
+            type="button"
+            onClick={() => setIcon(iconName)}
+            className={`flex items-center justify-center rounded-lg sm:rounded-xl p-2 sm:p-2.5 transition-all ${
+              icon === iconName
+                ? "bg-primary-container text-on-primary-container ring-2 ring-primary"
+                : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
+            }`}
+          >
+            <Icon name={iconName} size={16} />
+          </button>
+        ))}
       </div>
 
       {/* Actions */}
@@ -207,13 +205,13 @@ export default function CategoryForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl border border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="flex-1 rounded-xl border border-outline-variant py-3 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
         >
           Batal
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
+          className="flex-1 rounded-xl bg-primary py-3 text-label-md font-semibold text-on-primary shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98]"
         >
           {initialData ? "Simpan" : "Tambah"}
         </button>

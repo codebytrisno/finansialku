@@ -1,0 +1,732 @@
+<!doctype html>
+
+<html class="light" lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>Pengaturan - FinansialKu</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            .material-symbols-outlined {
+                font-variation-settings:
+                    "FILL" 0,
+                    "wght" 400,
+                    "GRAD" 0,
+                    "opsz" 24;
+            }
+            body {
+                font-family: "Geist", sans-serif;
+                -webkit-font-smoothing: antialiased;
+            }
+            .glass-panel {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .dark .glass-panel {
+                background: rgba(11, 28, 48, 0.7);
+                border-color: rgba(255, 255, 255, 0.05);
+            }
+            /* Custom radio styling for theme pickers */
+            .theme-card input:checked + div {
+                border-color: #00685f;
+                background-color: #f4fffc;
+            }
+            .dark .theme-card input:checked + div {
+                border-color: #89f5e7;
+                background-color: #00201d;
+            }
+        </style>
+        <script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "on-background": "#0b1c30",
+                            "surface-container-low": "#eff4ff",
+                            tertiary: "#006947",
+                            "on-primary": "#ffffff",
+                            primary: "#00685f",
+                            "outline-variant": "#bcc9c6",
+                            "secondary-container": "#d8e5e2",
+                            "on-secondary-container": "#5b6765",
+                            "on-tertiary": "#ffffff",
+                            "primary-fixed-dim": "#6bd8cb",
+                            "on-tertiary-fixed": "#002113",
+                            error: "#ba1a1a",
+                            "inverse-on-surface": "#eaf1ff",
+                            "inverse-primary": "#6bd8cb",
+                            "tertiary-container": "#00855b",
+                            "primary-fixed": "#89f5e7",
+                            "on-primary-fixed-variant": "#005049",
+                            "on-primary-fixed": "#00201d",
+                            "surface-container-high": "#dce9ff",
+                            "surface-container-highest": "#d3e4fe",
+                            background: "#f8f9ff",
+                            "error-container": "#ffdad6",
+                            "on-error": "#ffffff",
+                            "surface-container": "#e5eeff",
+                            "on-surface-variant": "#3d4947",
+                            "on-secondary-fixed-variant": "#3d4947",
+                            "inverse-surface": "#213145",
+                            "on-error-container": "#93000a",
+                            outline: "#6d7a77",
+                            "on-secondary-fixed": "#121e1c",
+                            "on-tertiary-fixed-variant": "#005236",
+                            secondary: "#55615f",
+                            "on-secondary": "#ffffff",
+                            "secondary-fixed": "#d8e5e2",
+                            "secondary-fixed-dim": "#bcc9c6",
+                            "surface-bright": "#f8f9ff",
+                            "on-primary-container": "#f4fffc",
+                            "surface-container-lowest": "#ffffff",
+                            "primary-container": "#008378",
+                            "surface-tint": "#006a61",
+                            "tertiary-fixed-dim": "#4edea3",
+                            "on-tertiary-container": "#f5fff6",
+                            "tertiary-fixed": "#6ffbbe",
+                            "surface-dim": "#cbdbf5",
+                            surface: "#f8f9ff",
+                            "on-surface": "#0b1c30",
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px",
+                        },
+                        spacing: {
+                            gutter: "1.5rem",
+                            "stack-xs": "0.25rem",
+                            "container-max": "1280px",
+                            "margin-mobile": "1rem",
+                            "stack-sm": "0.5rem",
+                            "stack-md": "1rem",
+                            "stack-lg": "2rem",
+                        },
+                        fontFamily: {
+                            "tabular-nums": ["Geist"],
+                            "headline-lg-mobile": ["Geist"],
+                            "headline-md": ["Geist"],
+                            "label-md": ["Geist"],
+                            "body-md": ["Geist"],
+                            "label-sm": ["Geist"],
+                            "body-lg": ["Geist"],
+                            display: ["Geist"],
+                            "headline-lg": ["Geist"],
+                        },
+                        fontSize: {
+                            "tabular-nums": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "600" },
+                            ],
+                            "headline-lg-mobile": [
+                                "24px",
+                                { lineHeight: "32px", fontWeight: "600" },
+                            ],
+                            "headline-md": [
+                                "20px",
+                                { lineHeight: "28px", fontWeight: "600" },
+                            ],
+                            "label-md": [
+                                "14px",
+                                {
+                                    lineHeight: "20px",
+                                    letterSpacing: "0.01em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "body-md": [
+                                "16px",
+                                { lineHeight: "24px", fontWeight: "400" },
+                            ],
+                            "label-sm": [
+                                "12px",
+                                {
+                                    lineHeight: "16px",
+                                    letterSpacing: "0.02em",
+                                    fontWeight: "500",
+                                },
+                            ],
+                            "body-lg": [
+                                "18px",
+                                { lineHeight: "28px", fontWeight: "400" },
+                            ],
+                            display: [
+                                "48px",
+                                {
+                                    lineHeight: "56px",
+                                    letterSpacing: "-0.02em",
+                                    fontWeight: "700",
+                                },
+                            ],
+                            "headline-lg": [
+                                "32px",
+                                {
+                                    lineHeight: "40px",
+                                    letterSpacing: "-0.01em",
+                                    fontWeight: "600",
+                                },
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-background text-on-surface">
+        <!-- Top Navigation (Mobile Only) -->
+        <header
+            class="md:hidden flex justify-between items-center w-full px-4 h-16 sticky top-0 z-40 bg-surface shadow-sm"
+        >
+            <h1
+                class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary"
+            >
+                FinansialKu
+            </h1>
+            <div class="flex gap-4">
+                <span class="material-symbols-outlined text-primary"
+                    >notifications</span
+                >
+                <span class="material-symbols-outlined text-primary"
+                    >account_circle</span
+                >
+            </div>
+        </header>
+        <div class="flex min-h-screen">
+            <!-- SideNavBar Component -->
+            <aside
+                class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant p-4 space-y-4 hidden md:flex z-50"
+            >
+                <div class="px-2 py-4">
+                    <h2
+                        class="font-headline-md text-headline-md font-extrabold text-primary"
+                    >
+                        FinansialKu
+                    </h2>
+                    <p
+                        class="font-label-sm text-label-sm text-on-surface-variant opacity-70"
+                    >
+                        The Dependable Advisor
+                    </p>
+                </div>
+                <nav class="flex-grow space-y-1">
+                    <!-- Dashboard -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+                    <!-- Transaksi -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >receipt_long</span
+                        >
+                        Transaksi
+                    </a>
+                    <!-- Laporan -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">analytics</span>
+                        Laporan
+                    </a>
+                    <!-- Budget -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >account_balance_wallet</span
+                        >
+                        Budget
+                    </a>
+                    <!-- Kategori -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined">category</span>
+                        Kategori
+                    </a>
+                    <!-- Akun -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all font-label-md text-label-md"
+                        href="#"
+                    >
+                        <span class="material-symbols-outlined"
+                            >account_balance</span
+                        >
+                        Akun
+                    </a>
+                    <!-- Pengaturan (Active) -->
+                    <a
+                        class="flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold font-label-md text-label-md"
+                        href="/settings"
+                    >
+                        <span class="material-symbols-outlined">settings</span>
+                        Pengaturan
+                    </a>
+                </nav>
+                <div class="mt-auto pt-4 border-t border-outline-variant">
+                    <div class="flex items-center gap-3 mb-4 px-2">
+                        <img
+                            class="w-10 h-10 rounded-full border border-outline-variant object-cover"
+                            data-alt="A professional studio portrait of a friendly Indonesian male user in business casual attire, glowing soft lighting, minimalist clean background, corporate photography style."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjzqsbmzz0m8H_PBwv59EbpdlJHzuySjHBnPUqeem6MYEs0KGL-RQfMbdFQezFtFG7k4wix1wpQE-m_p9Yzy8CgHk0ak5UcUfV6aXK3KQGBCMgYeKuwKgDhHEKEEKcrl_k88ePxuqBmYKx_NBuAQERMMzdNJLg7opnuE_789eT9X4SdoAfSmVysIBOWKP6WB-XRzb0ZcFVMBbGeuQT2EFyEWseeUO_TJDmZjYg9VYcNvT32oDmZDOkq8WXFuij54EJOUgOxg3qSNs"
+                        />
+                        <div class="overflow-hidden">
+                            <p
+                                class="font-label-md text-label-md font-bold truncate"
+                            >
+                                User Profile
+                            </p>
+                            <p
+                                class="font-label-sm text-label-sm text-on-surface-variant truncate"
+                            >
+                                Premium Member
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md text-label-md font-bold active:translate-x-1 duration-200"
+                    >
+                        Upgrade Premium
+                    </button>
+                </div>
+            </aside>
+            <!-- Main Content Area -->
+            <main
+                class="flex-grow md:ml-64 p-4 md:p-8 max-w-5xl mx-auto w-full"
+            >
+                <header class="mb-8">
+                    <h2
+                        class="font-headline-lg text-headline-lg font-bold text-on-background"
+                    >
+                        Pengaturan
+                    </h2>
+                    <p
+                        class="font-body-md text-body-md text-on-surface-variant"
+                    >
+                        Personalisasi dan amankan data finansial Anda.
+                    </p>
+                </header>
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Theme Selection Bento Section -->
+                    <section class="glass-panel p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="material-symbols-outlined text-primary"
+                                >palette</span
+                            >
+                            <h3 class="font-headline-md text-headline-md">
+                                Tema Aplikasi
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <label class="theme-card cursor-pointer group">
+                                <input
+                                    checked=""
+                                    class="hidden"
+                                    name="theme"
+                                    onclick="
+                                        document.documentElement.classList.remove(
+                                            'dark',
+                                        )
+                                    "
+                                    type="radio"
+                                    value="light"
+                                />
+                                <div
+                                    class="p-4 border-2 border-outline-variant rounded-lg group-hover:border-primary transition-all"
+                                >
+                                    <div
+                                        class="h-20 bg-background rounded border border-outline-variant mb-3 flex items-center justify-center"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined text-on-surface"
+                                            >light_mode</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-label-md text-label-md block text-center"
+                                        >Light</span
+                                    >
+                                </div>
+                            </label>
+                            <label class="theme-card cursor-pointer group">
+                                <input
+                                    class="hidden"
+                                    name="theme"
+                                    onclick="
+                                        document.documentElement.classList.add(
+                                            'dark',
+                                        )
+                                    "
+                                    type="radio"
+                                    value="dark"
+                                />
+                                <div
+                                    class="p-4 border-2 border-outline-variant rounded-lg group-hover:border-primary transition-all"
+                                >
+                                    <div
+                                        class="h-20 bg-on-background rounded border border-outline-variant mb-3 flex items-center justify-center"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined text-white"
+                                            >dark_mode</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-label-md text-label-md block text-center"
+                                        >Dark</span
+                                    >
+                                </div>
+                            </label>
+                            <label class="theme-card cursor-pointer group">
+                                <input
+                                    class="hidden"
+                                    name="theme"
+                                    type="radio"
+                                    value="system"
+                                />
+                                <div
+                                    class="p-4 border-2 border-outline-variant rounded-lg group-hover:border-primary transition-all"
+                                >
+                                    <div
+                                        class="h-20 bg-gradient-to-r from-background to-on-background rounded border border-outline-variant mb-3 flex items-center justify-center overflow-hidden"
+                                    >
+                                        <span
+                                            class="material-symbols-outlined mix-blend-difference text-white"
+                                            >settings_brightness</span
+                                        >
+                                    </div>
+                                    <span
+                                        class="font-label-md text-label-md block text-center"
+                                        >Sistem</span
+                                    >
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+                    <!-- Local Preferences Section -->
+                    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-panel p-6 rounded-xl shadow-sm">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span
+                                    class="material-symbols-outlined text-primary"
+                                    >payments</span
+                                >
+                                <h3 class="font-headline-md text-headline-md">
+                                    Mata Uang
+                                </h3>
+                            </div>
+                            <p
+                                class="font-body-md text-body-md text-on-surface-variant mb-4"
+                            >
+                                Pilih mata uang default untuk semua catatan
+                                transaksi Anda.
+                            </p>
+                            <select
+                                class="w-full p-3 rounded-lg border-outline-variant bg-surface-container-lowest focus:ring-primary focus:border-primary font-body-md"
+                            >
+                                <option selected="" value="IDR">
+                                    IDR (Rp) - Rupiah Indonesia
+                                </option>
+                                <option value="USD">USD ($) - US Dollar</option>
+                                <option value="SGD">
+                                    SGD (S$) - Singapore Dollar
+                                </option>
+                                <option value="EUR">EUR (€) - Euro</option>
+                            </select>
+                        </div>
+                        <div
+                            class="glass-panel p-6 rounded-xl shadow-sm flex flex-col justify-center"
+                        >
+                            <div
+                                class="bg-primary-container/10 p-4 rounded-lg flex items-start gap-4"
+                            >
+                                <span
+                                    class="material-symbols-outlined text-primary-container p-2 bg-on-primary-container/10 rounded-full"
+                                    >info</span
+                                >
+                                <div>
+                                    <h4
+                                        class="font-label-md text-label-md font-bold"
+                                    >
+                                        Informasi Akun
+                                    </h4>
+                                    <p
+                                        class="font-label-sm text-label-sm text-on-surface-variant"
+                                    >
+                                        Status: Gratis. Tingkatkan ke Pro untuk
+                                        sinkronisasi cloud otomatis dan fitur
+                                        tak terbatas.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Backup & Restore -->
+                    <section class="glass-panel p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="material-symbols-outlined text-primary"
+                                >backup</span
+                            >
+                            <h3 class="font-headline-md text-headline-md">
+                                Cadangkan &amp; Pulihkan
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Export -->
+                            <div>
+                                <h4
+                                    class="font-label-md text-label-md font-bold mb-3"
+                                >
+                                    Ekspor Data
+                                </h4>
+                                <p
+                                    class="font-body-md text-body-md text-on-surface-variant mb-4"
+                                >
+                                    Unduh salinan data Anda untuk disimpan
+                                    secara luring.
+                                </p>
+                                <div class="flex flex-col gap-3">
+                                    <button
+                                        class="flex items-center justify-between p-4 bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors group"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="material-symbols-outlined text-primary"
+                                                >save</span
+                                            >
+                                            <span
+                                                class="font-label-md text-label-md"
+                                                >Ekspor JSON</span
+                                            >
+                                        </div>
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant"
+                                            >Semua Data</span
+                                        >
+                                    </button>
+                                    <button
+                                        class="flex items-center justify-between p-4 bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors group"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="material-symbols-outlined text-primary"
+                                                >table_view</span
+                                            >
+                                            <span
+                                                class="font-label-md text-label-md"
+                                                >Ekspor CSV</span
+                                            >
+                                        </div>
+                                        <span
+                                            class="font-label-sm text-label-sm text-on-surface-variant"
+                                            >Hanya Transaksi</span
+                                        >
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Import -->
+                            <div>
+                                <h4
+                                    class="font-label-md text-label-md font-bold mb-3"
+                                >
+                                    Impor Data
+                                </h4>
+                                <p
+                                    class="font-body-md text-body-md text-on-surface-variant mb-4"
+                                >
+                                    Unggah berkas JSON untuk memulihkan catatan
+                                    keuangan.
+                                </p>
+                                <div
+                                    class="border-2 border-dashed border-outline-variant rounded-lg p-6 text-center hover:border-primary transition-all cursor-pointer bg-surface-container-lowest/50"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-4xl text-outline mb-2"
+                                        >upload_file</span
+                                    >
+                                    <p class="font-label-md text-label-md">
+                                        Klik atau seret berkas JSON ke sini
+                                    </p>
+                                    <input
+                                        class="hidden"
+                                        id="json-upload"
+                                        type="file"
+                                    />
+                                </div>
+                                <div class="mt-4 flex gap-4">
+                                    <label
+                                        class="flex items-center gap-2 cursor-pointer"
+                                    >
+                                        <input
+                                            checked=""
+                                            class="text-primary focus:ring-primary"
+                                            name="import_type"
+                                            type="radio"
+                                        />
+                                        <span
+                                            class="font-label-md text-label-md"
+                                            >Gabung Data</span
+                                        >
+                                    </label>
+                                    <label
+                                        class="flex items-center gap-2 cursor-pointer"
+                                    >
+                                        <input
+                                            class="text-primary focus:ring-primary"
+                                            name="import_type"
+                                            type="radio"
+                                        />
+                                        <span
+                                            class="font-label-md text-label-md text-error"
+                                            >Ganti Data</span
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Danger Zone -->
+                    <section
+                        class="border-2 border-error/20 p-6 rounded-xl bg-error-container/5"
+                    >
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-error"
+                                >warning</span
+                            >
+                            <h3
+                                class="font-headline-md text-headline-md text-error"
+                            >
+                                Area Berbahaya
+                            </h3>
+                        </div>
+                        <div
+                            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+                        >
+                            <div>
+                                <h4
+                                    class="font-label-md text-label-md font-bold"
+                                >
+                                    Reset Semua Data
+                                </h4>
+                                <p
+                                    class="font-body-md text-body-md text-on-surface-variant"
+                                >
+                                    Menghapus seluruh riwayat transaksi,
+                                    anggaran, dan kategori secara permanen.
+                                    Tindakan ini tidak dapat dibatalkan.
+                                </p>
+                            </div>
+                            <button
+                                class="bg-transparent border border-error text-error px-6 py-2 rounded-lg font-bold hover:bg-error hover:text-on-error transition-all active:scale-95 duration-150 whitespace-nowrap"
+                            >
+                                Reset Semua Data
+                            </button>
+                        </div>
+                    </section>
+                </div>
+                <footer
+                    class="mt-12 text-center text-on-surface-variant opacity-60"
+                >
+                    <p class="font-label-sm text-label-sm">
+                        FinansialKu v2.4.0 • Dibuat dengan integritas untuk
+                        keuangan Anda.
+                    </p>
+                </footer>
+            </main>
+        </div>
+        <!-- Mobile Bottom Navigation (Shared Component Logic) -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 bg-surface shadow-[0_-1px_10px_rgba(0,0,0,0.05)] z-50 flex justify-around items-center h-16"
+        >
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-sm text-[10px]">Dashboard</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="font-label-sm text-[10px]">Transaksi</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-primary font-bold"
+            >
+                <span
+                    class="material-symbols-outlined"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >settings</span
+                >
+                <span class="font-label-sm text-[10px]">Setelan</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-on-surface-variant"
+            >
+                <span class="material-symbols-outlined">account_circle</span>
+                <span class="font-label-sm text-[10px]">Profil</span>
+            </button>
+        </nav>
+        <script>
+            // Micro-interactions and local state simulation
+            document.querySelectorAll(".theme-card").forEach((card) => {
+                card.addEventListener("click", () => {
+                    // Flash effect
+                    card.classList.add("scale-95");
+                    setTimeout(() => card.classList.remove("scale-95"), 100);
+                });
+            });
+
+            // Toggle mobile menu logic could be added here if needed
+            // Simulation of Toast for "Reset" action safety
+            const resetButton = document.querySelector("button.text-error");
+            resetButton.addEventListener("click", () => {
+                if (
+                    confirm(
+                        "Apakah Anda yakin ingin menghapus SEMUA data? Tindakan ini permanen.",
+                    )
+                ) {
+                    alert("Data telah direset.");
+                }
+            });
+
+            // Animation for panels entering
+            document.addEventListener("DOMContentLoaded", () => {
+                const panels = document.querySelectorAll("section");
+                panels.forEach((panel, index) => {
+                    panel.style.opacity = "0";
+                    panel.style.transform = "translateY(20px)";
+                    panel.style.transition = "all 0.4s ease-out";
+                    setTimeout(() => {
+                        panel.style.opacity = "1";
+                        panel.style.transform = "translateY(0)";
+                    }, 100 * index);
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { LuX } from "react-icons/lu";
+import { MaterialSymbol } from "./MaterialSymbol";
 
 interface ModalProps {
   isOpen: boolean;
@@ -43,21 +43,21 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       }}
     >
       <div
-        className="flex max-h-[85vh] w-full flex-col rounded-t-2xl bg-white shadow-xl dark:bg-zinc-900 sm:mx-4 sm:max-w-md sm:rounded-2xl"
+        className="flex max-h-[90vh] w-full flex-col rounded-t-2xl bg-surface-container-low shadow-xl dark:bg-inverse-surface sm:mx-4 sm:max-w-md sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
-          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+        <div className="flex items-center justify-between border-b border-outline-variant px-4 py-3 sm:px-5 sm:py-4">
+          <h2 className="text-label-md sm:text-headline-md font-bold text-on-surface dark:text-primary-fixed truncate pr-2">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-on-surface-variant transition-colors hover:bg-surface-container-highest dark:hover:bg-[#3D4947]"
           >
-            <LuX size={18} />
+            <MaterialSymbol icon="close" />
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">{children}</div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import type { Category } from "@/lib/types";
 import {
   getTransactions,
   getSettings,
@@ -24,17 +25,9 @@ import {
   type BackupData,
   CURRENCY_OPTIONS,
 } from "@/lib/types";
-import {
-  LuPalette,
-  LuSun,
-  LuMoon,
-  LuMonitor,
-  LuCoins,
-  LuDownload,
-  LuUpload,
-  LuTriangleAlert,
-  LuX,
-} from "react-icons/lu";
+import { Skeleton } from "@/components/Skeleton";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
+import { useToast } from "@/components/Toast";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<AppSettings>({
@@ -43,9 +36,9 @@ export default function SettingsPage() {
     defaultCategoryId: "",
     language: "id",
   });
-  const [categories, setCategories] = useState(() => getCategories());
-  const [importMessage, setImportMessage] = useState<string | null>(null);
-  const [importStatus, setImportStatus] = useState<"success" | "error" | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const loadData = useCallback(() => {
@@ -54,8 +47,11 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
-    initTheme();
+    requestAnimationFrame(() => {
+      loadData();
+      initTheme();
+      setLoading(false);
+    });
   }, [loadData]);
 
   const handleThemeChange = (theme: AppSettings["theme"]) => {
@@ -92,23 +88,19 @@ export default function SettingsPage() {
 
       const validation = validateBackupData(data);
       if (!validation.valid) {
-        setImportMessage(validation.error || "File backup tidak valid");
-        setImportStatus("error");
+        showToast(validation.error || "File backup tidak valid", "error");
         return;
       }
 
       const result = importBackup(data as BackupData, "replace");
-      setImportMessage(result.message);
-      setImportStatus(result.success ? "success" : "error");
+      showToast(result.message, result.success ? "success" : "error");
       if (result.success) {
         loadData();
       }
     } catch {
-      setImportMessage("Gagal membaca file backup. Pastikan format JSON valid.");
-      setImportStatus("error");
+      showToast("Gagal membaca file backup. Pastikan format JSON valid.", "error");
     }
 
-    // Reset input
     e.target.value = "";
   };
 
@@ -116,84 +108,87 @@ export default function SettingsPage() {
     resetAllData();
     loadData();
     setShowResetConfirm(false);
-    setImportMessage("Data berhasil direset!");
-    setImportStatus("success");
+    showToast("Semua data berhasil direset!");
   };
+
+  const themeOptions = [
+    { value: "light" as const, label: "Terang", icon: "light_mode" },
+    { value: "dark" as const, label: "Gelap", icon: "dark_mode" },
+    { value: "system" as const, label: "Sistem", icon: "settings_brightness" },
+  ];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 pb-24 lg:pb-8">
+      {loading && (
+        <>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-40 rounded-xl" />
+          <Skeleton className="h-52 rounded-xl" />
+          <Skeleton className="h-40 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl" />
+        </>
+      )}
+      {!loading && (<>
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-label-md sm:text-headline-lg font-bold text-on-surface">
           Pengaturan
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Kelola preferensi aplikasi
+        <p className="text-label-xs sm:text-body-md text-on-surface-variant">
+          Personalisasi dan amankan data finansial Anda.
         </p>
       </div>
 
-      {/* Notification */}
-      {importMessage && (
-        <div
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            importStatus === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
-              : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span>{importMessage}</span>
-            <button
-              onClick={() => setImportMessage(null)}
-              className="ml-2 text-current opacity-50 hover:opacity-100"
-            >
-              <LuX size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Theme */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          <LuPalette size={18} />
-          Tampilan
-        </h2>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { value: "light" as const, label: "Terang", icon: LuSun },
-            { value: "dark" as const, label: "Gelap", icon: LuMoon },
-            { value: "system" as const, label: "Sistem", icon: LuMonitor },
-          ].map((opt) => {
-            const Icon = opt.icon;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => handleThemeChange(opt.value)}
-                className={`flex flex-col items-center gap-1.5 rounded-xl py-3 text-center text-sm font-medium transition-all ${
-                  settings.theme === opt.value
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                }`}
-              >
-                <Icon size={20} />
-                <div>{opt.label}</div>
-              </button>
-            );
-          })}
+      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <MaterialSymbol icon="palette" className="text-primary" />
+          <h2 className="text-headline-md font-bold text-on-surface">
+            Tema Aplikasi
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {themeOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => handleThemeChange(opt.value)}
+              className={`p-4 border-2 rounded-xl transition-all text-center ${
+                settings.theme === opt.value
+                  ? "border-primary bg-primary-container/10"
+                  : "border-outline-variant hover:border-primary"
+              }`}
+            >
+              <div className="h-20 rounded-lg border border-outline-variant mb-3 flex items-center justify-center bg-surface">
+                <MaterialSymbol
+                  icon={opt.icon}
+                  size={24}
+                  className={settings.theme === opt.value ? "text-primary" : "text-on-surface"}
+                />
+              </div>
+              <span className="text-label-md block text-center">{opt.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Currency */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          <LuCoins size={18} />
-          Mata Uang
-        </h2>
+      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <MaterialSymbol icon="payments" className="text-primary" />
+          <h2 className="text-headline-md font-bold text-on-surface">
+            Mata Uang
+          </h2>
+        </div>
+        <p className="text-body-md text-on-surface-variant mb-4">
+          Pilih mata uang default untuk semua catatan transaksi Anda.
+        </p>
         <select
           value={settings.currency}
           onChange={(e) => handleCurrencyChange(e.target.value)}
-          className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+          className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
         >
           {CURRENCY_OPTIONS.map((opt) => (
             <option key={opt.code} value={opt.code}>
@@ -204,81 +199,116 @@ export default function SettingsPage() {
       </div>
 
       {/* Export/Import */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Backup Data
-        </h2>
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={handleExportJSON}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
-            >
-              <LuDownload size={16} />
-              Export JSON
-            </button>
-            <button
-              onClick={handleExportCSV}
-              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-[0.98]"
-            >
-              <LuDownload size={16} />
-              Export CSV
-            </button>
-          </div>
-          <label className="block">
-            <div className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:border-emerald-500 hover:text-emerald-600 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-emerald-400">
-              <LuUpload size={16} />
-              Import Backup JSON
+      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <MaterialSymbol icon="backup" className="text-primary" />
+          <h2 className="text-headline-md font-bold text-on-surface">
+            Cadangkan & Pulihkan
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Export */}
+          <div>
+            <h3 className="text-label-md font-bold mb-3">
+              Ekspor Data
+            </h3>
+            <p className="text-body-md text-on-surface-variant mb-4">
+              Unduh salinan data Anda untuk disimpan secara luring.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleExportJSON}
+                className="flex items-center justify-between w-full p-4 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <MaterialSymbol icon="save" className="text-primary" />
+                  <span className="text-label-md font-bold">Ekspor JSON</span>
+                </div>
+                <span className="text-label-sm text-on-surface-variant">Semua Data</span>
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center justify-between w-full p-4 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <MaterialSymbol icon="table_view" className="text-primary" />
+                  <span className="text-label-md font-bold">Ekspor CSV</span>
+                </div>
+                <span className="text-label-sm text-on-surface-variant">Hanya Transaksi</span>
+              </button>
             </div>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
-          </label>
+          </div>
+          {/* Import */}
+          <div>
+            <h3 className="text-label-md font-bold mb-3">
+              Impor Data
+            </h3>
+            <p className="text-body-md text-on-surface-variant mb-4">
+              Unggah berkas JSON untuk memulihkan catatan keuangan.
+            </p>
+            <label className="block">
+              <div className="border-2 border-dashed border-outline-variant rounded-xl p-6 text-center hover:border-primary transition-all cursor-pointer bg-surface-container-lowest/50">
+                <MaterialSymbol icon="upload_file" className="text-4xl text-outline mb-2" />
+                <p className="text-label-md font-bold">Klik atau seret berkas JSON ke sini</p>
+              </div>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
       </div>
 
       {/* Reset Data */}
-      <div className="rounded-2xl border border-red-200 bg-white p-5 dark:border-red-900/30 dark:bg-zinc-900">
-        <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400">
-          <LuTriangleAlert size={18} />
-          Reset Data
-        </h2>
-        <p className="mb-4 text-xs text-zinc-500 dark:text-zinc-400">
-          Hapus semua data transaksi dan kategori. Tindakan ini tidak bisa dibatalkan!
-        </p>
-        {showResetConfirm ? (
-          <div className="flex gap-2">
-            <button
-              onClick={handleReset}
-              className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-all hover:bg-red-700"
-            >
-              Ya, Reset Semua Data
-            </button>
-            <button
-              onClick={() => setShowResetConfirm(false)}
-              className="flex-1 rounded-xl border border-zinc-300 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400"
-            >
-              Batal
-            </button>
+      <div className="border-2 border-error/20 rounded-xl p-6 bg-error-container/5">
+        <div className="flex items-center gap-2 mb-4">
+          <MaterialSymbol icon="warning" className="text-error" />
+          <h2 className="text-headline-md font-bold text-error">
+            Area Berbahaya
+          </h2>
+        </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-label-md font-bold">Reset Semua Data</h3>
+            <p className="text-body-md text-on-surface-variant">
+              Menghapus seluruh riwayat transaksi, anggaran, dan kategori secara permanen. Tindakan ini tidak dapat dibatalkan.
+            </p>
           </div>
-        ) : (
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            className="w-full rounded-xl border border-red-300 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
-          >
-            Reset Data
-          </button>
-        )}
+          {showResetConfirm ? (
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={handleReset}
+                className="rounded-xl bg-error px-5 py-2.5 text-label-md font-medium text-on-error hover:bg-error/90 transition-all"
+              >
+                Ya, Reset Semua Data
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="rounded-xl border border-outline-variant px-5 py-2.5 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors"
+              >
+                Batal
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="shrink-0 rounded-xl border border-error px-5 py-2.5 text-label-md font-medium text-error hover:bg-error hover:text-on-error transition-all"
+            >
+              Reset Semua Data
+            </button>
+          )}
+        </div>
       </div>
 
       {/* App Info */}
-      <div className="text-center text-xs text-zinc-400 dark:text-zinc-500">
+      <div className="text-center text-label-sm text-on-surface-variant/60">
         <p>FinansialKu v1.0.0</p>
         <p>App offline — semua data disimpan di perangkatmu</p>
       </div>
+    </>)}
     </div>
   );
 }

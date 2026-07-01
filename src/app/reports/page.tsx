@@ -31,31 +31,19 @@ import {
   type Category,
   type AppSettings,
   type Budget,
-  type BudgetProgress,
   CURRENCY_OPTIONS,
 } from "@/lib/types";
 import SummaryCard from "@/components/SummaryCard";
 import { Icon } from "@/lib/icons";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
 import { BarChart, DonutChart, DonutLegend } from "@/components/Charts";
 import CalendarView from "@/components/CalendarView";
-import {
-  LuTrendingUp,
-  LuTrendingDown,
-  LuScale,
-  LuArrowDown,
-  LuArrowUp,
-  LuCalendar,
-  LuCalendarDays,
-  LuCalendarRange,
-  LuChartLine,
-  LuChevronLeft,
-  LuChevronRight,
-  LuTarget,
-} from "react-icons/lu";
+import { Skeleton } from "@/components/Skeleton";
 
 type Tab = "monthly" | "weekly" | "yearly" | "calendar";
 
 export default function ReportsPage() {
+  const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [settings, setSettings] = useState<AppSettings>({
@@ -78,7 +66,10 @@ export default function ReportsPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
+    requestAnimationFrame(() => {
+      loadData();
+      setLoading(false);
+    });
   }, [loadData]);
 
   const currencySymbol = useMemo(() => {
@@ -123,7 +114,6 @@ export default function ReportsPage() {
     const weekTx = transactions.filter(
       (t) => t.transactionDate >= selectedWeek && t.transactionDate <= weekEndStr
     );
-    // Compute breakdown directly from weekTx (don't use month-filtered function)
     const computeBreakdown = (type: "income" | "expense") => {
       const filtered = weekTx.filter((t) => t.type === type);
       const total = filtered.reduce((sum, t) => sum + t.amount, 0);
@@ -237,11 +227,11 @@ export default function ReportsPage() {
 
   // ─── Calendar ────────────────────────────────────────────────
 
-  const tabs: { id: Tab; label: string; icon: typeof LuCalendar }[] = [
-    { id: "monthly", label: "Bulanan", icon: LuCalendar },
-    { id: "weekly", label: "Mingguan", icon: LuCalendarDays },
-    { id: "yearly", label: "Tahunan", icon: LuCalendarRange },
-    { id: "calendar", label: "Kalender", icon: LuChartLine },
+  const tabs: { id: Tab; label: string; icon: string }[] = [
+    { id: "monthly", label: "Bulanan", icon: "calendar_month" },
+    { id: "weekly", label: "Mingguan", icon: "calendar_view_week" },
+    { id: "yearly", label: "Tahunan", icon: "calendar_today" },
+    { id: "calendar", label: "Kalender", icon: "calendar_view_month" },
   ];
 
   const totalIncome = selectedSummary?.income || 0;
@@ -250,35 +240,50 @@ export default function ReportsPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 pb-24 lg:pb-8">
+      {loading && (
+        <>
+          <div className="space-y-2 mb-4">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-10 rounded-xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-stack-sm">
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+          </div>
+          <Skeleton className="h-72 rounded-xl" />
+          <Skeleton className="h-72 rounded-xl" />
+        </>
+      )}
+      {!loading && <>
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-headline-lg font-bold text-on-surface">
           Laporan & Statistik
         </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-body-md text-on-surface-variant">
           Analisis keuangan lengkap
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-all ${
-                activeTab === tab.id
-                  ? "bg-white text-emerald-700 shadow-sm dark:bg-zinc-900 dark:text-emerald-300"
-                  : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-              }`}
-            >
-              <Icon size={16} />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          );
-        })}
+      <div className="flex gap-stack-xs rounded-xl bg-surface-container-low p-1 w-fit">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-label-md font-medium transition-all ${
+              activeTab === tab.id
+                ? "bg-surface-container-lowest text-primary shadow-sm"
+                : "text-on-surface-variant hover:bg-surface-container"
+            }`}
+          >
+            <MaterialSymbol icon={tab.icon} size={16} />
+            <span className="hidden sm:inline">{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {/* ─── MONTHLY TAB ─────────────────────────────────────── */}
@@ -289,7 +294,7 @@ export default function ReportsPage() {
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 pr-10 text-label-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {monthRange.map((m) => (
                 <option key={m} value={m}>
@@ -297,6 +302,7 @@ export default function ReportsPage() {
                 </option>
               ))}
             </select>
+            <MaterialSymbol icon="expand_more" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           </div>
 
           {/* Summary Cards */}
@@ -304,27 +310,27 @@ export default function ReportsPage() {
             <SummaryCard
               title="Total Pemasukan"
               value={formatCurrency(totalIncome, settings.currency)}
-              icon={<LuTrendingUp size={22} />}
-              color="emerald"
+              icon={<MaterialSymbol icon="trending_up" size={22} />}
+              color="tertiary"
             />
             <SummaryCard
               title="Total Pengeluaran"
               value={formatCurrency(totalExpense, settings.currency)}
-              icon={<LuTrendingDown size={22} />}
-              color="red"
+              icon={<MaterialSymbol icon="trending_down" size={22} />}
+              color="error"
             />
             <SummaryCard
               title="Selisih"
               value={formatCurrency(totalBalance, settings.currency)}
-              icon={<LuScale size={22} />}
-              color={totalBalance >= 0 ? "emerald" : "red"}
+              icon={<MaterialSymbol icon="balance" size={22} />}
+              color={totalBalance >= 0 ? "tertiary" : "error"}
             />
           </div>
 
           {/* Monthly Trend Chart */}
           {monthlySummaries.some((m) => m.income > 0 || m.expense > 0) && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 text-label-md font-semibold text-on-surface">
                 Tren Bulanan
               </h2>
               <div className="flex items-end gap-2" style={{ height: 160 }}>
@@ -337,20 +343,20 @@ export default function ReportsPage() {
                     <div key={i} className="flex flex-1 flex-col items-center">
                       <div className="flex w-full items-end justify-center gap-1" style={{ height: 130 }}>
                         <div
-                          className="w-3 rounded-t-sm bg-emerald-400 transition-all hover:bg-emerald-500"
+                          className="w-3 rounded-t-sm bg-primary transition-all hover:opacity-80"
                           title={`Pemasukan: ${formatCurrency(m.income)}`}
                           style={{ height: `${(m.income / maxVal) * 100}%` }}
                         />
                         <div
-                          className="w-3 rounded-t-sm bg-red-400 transition-all hover:bg-red-500"
+                          className="w-3 rounded-t-sm bg-error transition-all hover:opacity-80"
                           title={`Pengeluaran: ${formatCurrency(m.expense)}`}
                           style={{ height: `${(m.expense / maxVal) * 100}%` }}
                         />
                       </div>
                       <span className={`mt-1 text-xs ${
                         m.month === selectedMonth
-                          ? "font-bold text-emerald-600 dark:text-emerald-400"
-                          : "text-zinc-400"
+                          ? "font-bold text-primary"
+                          : "text-on-surface-variant/60"
                       }`}>
                         {m.month.slice(-2) + "/" + m.month.slice(2, 4)}
                       </span>
@@ -358,12 +364,12 @@ export default function ReportsPage() {
                   );
                 })}
               </div>
-              <div className="mt-4 flex items-center justify-center gap-4 text-xs text-zinc-500">
+              <div className="mt-4 flex items-center justify-center gap-4 text-label-sm text-on-surface-variant">
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-400" /> Pemasukan
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" /> Pemasukan
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-400" /> Pengeluaran
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-error" /> Pengeluaran
                 </span>
               </div>
             </div>
@@ -371,9 +377,9 @@ export default function ReportsPage() {
 
           {/* Asset Trend Chart */}
           {assetTrend.length > 1 && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                <LuChartLine size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-on-surface">
+                <MaterialSymbol icon="show_chart" size={16} />
                 Perubahan Aset
               </h2>
               <div className="flex items-end gap-2" style={{ height: 100 }}>
@@ -388,23 +394,23 @@ export default function ReportsPage() {
                         <div className="flex w-full items-end justify-center" style={{ height: 80 }}>
                           <div
                             className={`w-3 rounded-t-sm transition-all ${
-                              isPositive ? "bg-emerald-400" : "bg-red-400"
+                              isPositive ? "bg-primary" : "bg-error"
                             }`}
                             title={`${getMonthLabel(a.date)}: ${formatCurrency(a.netWorth, settings.currency)}`}
                             style={{ height: `${(h / maxVal) * 100}%` }}
                           />
                         </div>
-                        <span className="mt-1 text-[10px] text-zinc-400">{a.date.slice(-2)}</span>
+                        <span className="mt-1 text-[10px] text-on-surface-variant/60">{a.date.slice(-2)}</span>
                       </div>
                     );
                   });
                 })()}
               </div>
-              <p className="mt-3 text-center text-xs text-zinc-400">
-                Aset saat ini: {formatCurrency(
+              <p className="mt-3 text-center text-label-sm text-on-surface-variant/60">
+                Aset saat ini: <span className={(assetTrend[assetTrend.length - 1]?.netWorth || 0) < 0 ? 'text-error' : ''}>{formatCurrency(
                   assetTrend[assetTrend.length - 1]?.netWorth || 0,
                   settings.currency
-                )}
+                )}</span>
               </p>
             </div>
           )}
@@ -412,13 +418,13 @@ export default function ReportsPage() {
           {/* Category Breakdown */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Expense Breakdown */}
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-red-600 dark:text-red-400">
-                <LuArrowDown size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-error">
+                <MaterialSymbol icon="arrow_downward" size={16} />
                 Pengeluaran per Kategori
               </h2>
               {expenseBreakdown.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pengeluaran bulan ini
                 </p>
               ) : (
@@ -432,7 +438,7 @@ export default function ReportsPage() {
                     size={140}
                     totalLabel="Pengeluaran"
                   />
-                  <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                  <div className="mt-4 border-t border-outline-variant pt-4">
                     <DonutLegend
                       data={expenseBreakdown}
                       currencySymbol={currencySymbol}
@@ -443,13 +449,13 @@ export default function ReportsPage() {
             </div>
 
             {/* Income Breakdown */}
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                <LuArrowUp size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-primary">
+                <MaterialSymbol icon="arrow_upward" size={16} />
                 Pemasukan per Kategori
               </h2>
               {incomeBreakdown.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pemasukan bulan ini
                 </p>
               ) : (
@@ -463,7 +469,7 @@ export default function ReportsPage() {
                     size={140}
                     totalLabel="Pemasukan"
                   />
-                  <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                  <div className="mt-4 border-t border-outline-variant pt-4">
                     <DonutLegend
                       data={incomeBreakdown}
                       currencySymbol={currencySymbol}
@@ -476,37 +482,37 @@ export default function ReportsPage() {
 
           {/* Budget vs Actual Comparison */}
           {budgetProgress.length > 0 && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                <LuTarget size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-on-surface">
+                <MaterialSymbol icon="target" size={16} />
                 Budget vs Realisasi ({getMonthLabel(selectedMonth)})
               </h2>
 
               {/* Overall Budget Summary */}
-              <div className="mb-4 rounded-xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
+              <div className="mb-4 rounded-xl bg-surface-container p-4">
                 <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-zinc-500">Total Anggaran</span>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{formatCurrency(budgetTotalBudget, settings.currency)}</span>
+                  <span className="font-bold text-on-surface-variant">Total Anggaran</span>
+                  <span className="font-bold text-on-surface">{formatCurrency(budgetTotalBudget, settings.currency)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-zinc-500">Realisasi</span>
-                  <span className="font-bold text-red-600 dark:text-red-400">{formatCurrency(budgetTotalSpent, settings.currency)}</span>
+                  <span className="font-bold text-on-surface-variant">Realisasi</span>
+                  <span className="font-bold text-error">{formatCurrency(budgetTotalSpent, settings.currency)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-500">Sisa</span>
-                  <span className={`font-bold ${budgetRemaining >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                  <span className="font-bold text-on-surface-variant">Sisa</span>
+                  <span className={`font-bold ${budgetRemaining >= 0 ? "text-primary" : "text-error"}`}>
                     {formatCurrency(budgetRemaining, settings.currency)}
                   </span>
                 </div>
                 <div className="mt-3">
-                  <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
+                  <div className="mb-1 flex items-center justify-between text-label-sm text-on-surface-variant/60">
                     <span>Progress</span>
                     <span>{budgetPercentage}%</span>
                   </div>
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                  <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-highest">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        budgetPercentage >= 100 ? "bg-red-500" : budgetPercentage >= 80 ? "bg-amber-500" : "bg-emerald-500"
+                        budgetPercentage >= 100 ? "bg-error" : budgetPercentage >= 80 ? "bg-tertiary" : "bg-primary"
                       }`}
                       style={{ width: `${budgetPercentage}%` }}
                     />
@@ -525,37 +531,33 @@ export default function ReportsPage() {
                       <div className="mb-1 flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <Icon name={iconName} size={14} />
-                          <span className="truncate text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                          <span className="truncate text-label-sm font-medium text-on-surface">
                             {bp.categoryName}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs shrink-0">
-                          <span className="text-red-500">{formatCurrency(bp.spentAmount, settings.currency)}</span>
-                          <span className="text-zinc-400">/</span>
-                          <span className="text-zinc-600 dark:text-zinc-400">{formatCurrency(bp.budgetAmount, settings.currency)}</span>
-                          <span className={`font-bold ${isOver ? "text-red-500" : isWarn ? "text-amber-500" : "text-emerald-500"}`}>
+                        <div className="flex items-center gap-2 text-label-sm shrink-0">
+                          <span className="font-bold text-error">{formatCurrency(bp.spentAmount, settings.currency)}</span>
+                          <span className="text-on-surface-variant/60">/</span>
+                          <span className="font-bold text-on-surface-variant">{formatCurrency(bp.budgetAmount, settings.currency)}</span>
+                          <span className={`font-bold ${isOver ? "text-error" : isWarn ? "text-tertiary" : "text-primary"}`}>
                             {bp.percentage}%
                           </span>
                         </div>
                       </div>
-                      {/* Budget bar: show budget vs actual */}
-                      <div className="relative h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                        {/* Budget 100% line */}
-                        <div className="absolute top-0 left-[calc(100%-1px)] h-full w-0.5 bg-zinc-900/50 dark:bg-zinc-100/50" />
-                        {/* Spent bar */}
+                      <div className="relative h-4 w-full overflow-hidden rounded-full bg-surface-container">
+                        <div className="absolute top-0 left-[calc(100%-1px)] h-full w-0.5 bg-on-surface/50" />
                         <div
                           className={`h-full rounded-full transition-all ${
-                            isOver ? "bg-red-500" : isWarn ? "bg-amber-500" : "bg-emerald-500"
+                            isOver ? "bg-error" : isWarn ? "bg-tertiary" : "bg-primary"
                           }`}
                           style={{ width: `${Math.min(bp.percentage, 100)}%` }}
                         />
-                        {/* Over-budget indicator */}
                         {isOver && (
                           <div
                             className="absolute right-0 top-0 h-full rounded-r-full"
                             style={{
                               width: `${Math.min(bp.percentage - 100, 10)}%`,
-                              backgroundColor: "rgba(239, 68, 68, 0.3)",
+                              backgroundColor: "rgba(186, 26, 26, 0.3)",
                             }}
                           />
                         )}
@@ -580,14 +582,14 @@ export default function ReportsPage() {
                 prev.setDate(prev.getDate() - 7);
                 setSelectedWeek(prev.toISOString().split("T")[0]);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
             >
-              <LuChevronLeft size={18} />
+              <MaterialSymbol icon="chevron_left" size={18} />
             </button>
             <select
               value={selectedWeek}
               onChange={(e) => setSelectedWeek(e.target.value)}
-              className="flex-1 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className="flex-1 rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 text-label-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {weeksInMonth.map((w) => (
                 <option key={w} value={w}>
@@ -601,9 +603,9 @@ export default function ReportsPage() {
                 next.setDate(next.getDate() + 7);
                 setSelectedWeek(next.toISOString().split("T")[0]);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
             >
-              <LuChevronRight size={18} />
+              <MaterialSymbol icon="chevron_right" size={18} />
             </button>
           </div>
 
@@ -612,32 +614,32 @@ export default function ReportsPage() {
             <SummaryCard
               title="Pemasukan Minggu Ini"
               value={formatCurrency(weeklySummary.income, settings.currency)}
-              icon={<LuTrendingUp size={22} />}
-              color="emerald"
+              icon={<MaterialSymbol icon="trending_up" size={22} />}
+              color="tertiary"
             />
             <SummaryCard
               title="Pengeluaran Minggu Ini"
               value={formatCurrency(weeklySummary.expense, settings.currency)}
-              icon={<LuTrendingDown size={22} />}
-              color="red"
+              icon={<MaterialSymbol icon="trending_down" size={22} />}
+              color="error"
             />
             <SummaryCard
               title="Selisih"
               value={formatCurrency(weeklySummary.balance, settings.currency)}
-              icon={<LuScale size={22} />}
-              color={weeklySummary.balance >= 0 ? "emerald" : "red"}
+              icon={<MaterialSymbol icon="balance" size={22} />}
+              color={weeklySummary.balance >= 0 ? "tertiary" : "error"}
             />
           </div>
 
           {/* Weekly Category Breakdown */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-red-600 dark:text-red-400">
-                <LuArrowDown size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-error">
+                <MaterialSymbol icon="arrow_downward" size={16} />
                 Pengeluaran Minggu Ini
               </h2>
               {weeklyBreakdown.expense.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pengeluaran minggu ini
                 </p>
               ) : (
@@ -647,13 +649,13 @@ export default function ReportsPage() {
                 />
               )}
             </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                <LuArrowUp size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-primary">
+                <MaterialSymbol icon="arrow_upward" size={16} />
                 Pemasukan Minggu Ini
               </h2>
               {weeklyBreakdown.income.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pemasukan minggu ini
                 </p>
               ) : (
@@ -674,18 +676,18 @@ export default function ReportsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedYear((parseInt(selectedYear) - 1).toString())}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
             >
-              <LuChevronLeft size={18} />
+              <MaterialSymbol icon="chevron_left" size={18} />
             </button>
-            <div className="flex-1 text-center text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+            <div className="flex-1 text-center text-label-md font-semibold text-on-surface">
               {selectedYear}
             </div>
             <button
               onClick={() => setSelectedYear((parseInt(selectedYear) + 1).toString())}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-300 text-zinc-500 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-outline-variant text-on-surface-variant transition-colors hover:bg-surface-container-low"
             >
-              <LuChevronRight size={18} />
+              <MaterialSymbol icon="chevron_right" size={18} />
             </button>
           </div>
 
@@ -694,14 +696,14 @@ export default function ReportsPage() {
             <SummaryCard
               title="Total Pemasukan"
               value={formatCurrency(yearlySummary.totalIncome, settings.currency)}
-              icon={<LuTrendingUp size={22} />}
-              color="emerald"
+              icon={<MaterialSymbol icon="trending_up" size={22} />}
+              color="tertiary"
             />
             <SummaryCard
               title="Total Pengeluaran"
               value={formatCurrency(yearlySummary.totalExpense, settings.currency)}
-              icon={<LuTrendingDown size={22} />}
-              color="red"
+              icon={<MaterialSymbol icon="trending_down" size={22} />}
+              color="error"
             />
             <SummaryCard
               title="Rata-rata/Bulan"
@@ -709,16 +711,16 @@ export default function ReportsPage() {
                 Math.round(yearlySummary.totalExpense / Math.max(yearlySummary.months.filter((m) => m.expense > 0).length, 1)),
                 settings.currency
               )}
-              icon={<LuScale size={22} />}
-              color="blue"
+              icon={<MaterialSymbol icon="balance" size={22} />}
+              color="secondary"
               subtitle="Pengeluaran"
             />
           </div>
 
           {/* Yearly Bar Chart */}
           {yearlySummary.months.some((m) => m.income > 0 || m.expense > 0) && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 text-label-md font-semibold text-on-surface">
                 Tren Tahun {selectedYear}
               </h2>
               <div className="flex items-end gap-1.5" style={{ height: 140 }}>
@@ -731,27 +733,27 @@ export default function ReportsPage() {
                     <div key={i} className="flex flex-1 flex-col items-center">
                       <div className="flex w-full items-end justify-center gap-0.5" style={{ height: 110 }}>
                         <div
-                          className="w-2 rounded-t-sm bg-emerald-400 transition-all"
+                          className="w-2 rounded-t-sm bg-primary transition-all"
                           style={{ height: `${(m.income / maxVal) * 100}%` }}
                         />
                         <div
-                          className="w-2 rounded-t-sm bg-red-400 transition-all"
+                          className="w-2 rounded-t-sm bg-error transition-all"
                           style={{ height: `${(m.expense / maxVal) * 100}%` }}
                         />
                       </div>
-                      <span className="mt-1 text-[10px] text-zinc-400">
+                      <span className="mt-1 text-[10px] text-on-surface-variant/60">
                         {["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"][i]}
                       </span>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-3 flex items-center justify-center gap-4 text-xs text-zinc-500">
+              <div className="mt-3 flex items-center justify-center gap-4 text-label-sm text-on-surface-variant">
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-400" /> Pemasukan
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" /> Pemasukan
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-400" /> Pengeluaran
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-error" /> Pengeluaran
                 </span>
               </div>
             </div>
@@ -759,13 +761,13 @@ export default function ReportsPage() {
 
           {/* Yearly Category Breakdown */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-red-600 dark:text-red-400">
-                <LuArrowDown size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-error">
+                <MaterialSymbol icon="arrow_downward" size={16} />
                 Pengeluaran {selectedYear}
               </h2>
               {yearlyExpenseBreakdown.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pengeluaran tahun ini
                 </p>
               ) : (
@@ -775,13 +777,13 @@ export default function ReportsPage() {
                 />
               )}
             </div>
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                <LuArrowUp size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-primary">
+                <MaterialSymbol icon="arrow_upward" size={16} />
                 Pemasukan {selectedYear}
               </h2>
               {yearlyIncomeBreakdown.length === 0 ? (
-                <p className="py-8 text-center text-sm text-zinc-400">
+                <p className="py-8 text-center text-label-sm text-on-surface-variant/60">
                   Tidak ada pemasukan tahun ini
                 </p>
               ) : (
@@ -800,9 +802,9 @@ export default function ReportsPage() {
         <>
           {/* Asset Trend */}
           {assetTrend.length > 1 && (
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <h2 className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                <LuChartLine size={16} />
+            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
+              <h2 className="mb-4 flex items-center gap-1.5 text-label-md font-semibold text-on-surface">
+                <MaterialSymbol icon="show_chart" size={16} />
                 Perubahan Aset (12 Bulan)
               </h2>
               <div className="flex items-end gap-2" style={{ height: 120 }}>
@@ -815,32 +817,30 @@ export default function ReportsPage() {
                     return (
                       <div key={i} className="flex flex-1 flex-col items-center">
                         <div className="relative flex w-full items-center justify-center" style={{ height: 100 }}>
-                          {/* Zero line */}
-                          <div className="absolute left-0 right-0 top-1/2 h-px bg-zinc-200 dark:bg-zinc-700" />
-                          {/* Bar */}
+                          <div className="absolute left-0 right-0 top-1/2 h-px bg-outline-variant" />
                           <div
                             className={`absolute w-3 rounded-sm transition-all ${
                               isPositive
-                                ? "bottom-1/2 bg-emerald-400"
-                                : "top-1/2 bg-red-400"
+                                ? "bottom-1/2 bg-primary"
+                                : "top-1/2 bg-error"
                             }`}
                             style={{ height: `${Math.max(h, 1)}%` }}
                           />
                         </div>
-                        <span className="mt-1 text-[10px] text-zinc-400">{a.date.slice(-2)}</span>
+                        <span className="mt-1 text-[10px] text-on-surface-variant/60">{a.date.slice(-2)}</span>
                       </div>
                     );
                   });
                 })()}
               </div>
-              <div className="mt-3 flex items-center justify-center gap-4 text-xs text-zinc-500">
+              <div className="mt-3 flex items-center justify-center gap-4 text-label-sm text-on-surface-variant">
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-400" /> Positif
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" /> Positif
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-400" /> Negatif
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-error" /> Negatif
                 </span>
-                <span className="text-zinc-400">
+                <span className={(assetTrend[assetTrend.length - 1]?.netWorth || 0) < 0 ? 'text-error' : 'text-on-surface-variant/60'}>
                   Total: {formatCurrency(
                     assetTrend[assetTrend.length - 1]?.netWorth || 0,
                     settings.currency
@@ -851,7 +851,7 @@ export default function ReportsPage() {
           )}
 
           {/* Calendar View */}
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
             <CalendarView
               transactions={transactions}
               categories={categories}
@@ -862,6 +862,7 @@ export default function ReportsPage() {
           </div>
         </>
       )}
+    </>}
     </div>
   );
 }

@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   getAccounts,
   addAccount,
   updateAccount,
   deleteAccount,
+  getSettings,
 } from "@/lib/store";
 import { type Account, type AccountType } from "@/lib/types";
-import { getAccountTypeLabel, getAccountTypeColor, formatCurrency } from "@/lib/utils";
+import { getAccountTypeLabel, getAccountTypeColor, formatCurrency, getCurrencySymbol, formatNumberInput, parseNumberInput } from "@/lib/utils";
 import { Icon } from "@/lib/icons";
+import { MaterialSymbol } from "@/components/MaterialSymbol";
 import Modal from "@/components/Modal";
-import {
-  LuPlus,
-  LuPencil,
-  LuTrash2,
-  LuCircleDollarSign,
-} from "react-icons/lu";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useToast } from "@/components/Toast";
+import { Skeleton } from "@/components/Skeleton";
 
 const ACCOUNT_TYPE_ICONS: Record<string, string> = {
   cash: "wallet",
@@ -39,7 +39,11 @@ const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
 ];
 
 export default function AccountsPage() {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [settings, setSettings] = useState(getSettings());
   const [showForm, setShowForm] = useState(false);
   const [editAccount, setEditAccount] = useState<Account | null>(null);
   const [formName, setFormName] = useState("");
@@ -48,6 +52,7 @@ export default function AccountsPage() {
   const [formColor, setFormColor] = useState("#22c55e");
   const [formIcon, setFormIcon] = useState("wallet");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const COLORS = [
     "#22c55e", "#3b82f6", "#ef4444", "#f59e0b", "#8b5cf6",
@@ -59,10 +64,14 @@ export default function AccountsPage() {
 
   const loadData = useCallback(() => {
     setAccounts(getAccounts());
+    setSettings(getSettings());
   }, []);
 
   useEffect(() => {
-    loadData();
+    requestAnimationFrame(() => {
+      loadData();
+      setLoading(false);
+    });
   }, [loadData]);
 
   const resetForm = () => {
@@ -114,8 +123,10 @@ export default function AccountsPage() {
 
     if (editAccount) {
       updateAccount(editAccount.id, data);
+      showToast("Akun berhasil diperbarui");
     } else {
       addAccount(data);
+      showToast("Akun berhasil ditambahkan");
     }
 
     setShowForm(false);
@@ -123,112 +134,125 @@ export default function AccountsPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Yakin ingin menghapus akun ini?")) {
-      deleteAccount(id);
-      loadData();
-    }
+    setDeleteConfirm(id);
   };
 
   const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
-  const currency = "IDR";
+  const currency = settings.currency;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-24 lg:pb-8">
+    <div className="mx-auto max-w-container-max space-y-stack-lg pb-24 lg:pb-0">
+      {loading && (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+            <Skeleton className="h-9 w-28 rounded-xl" />
+          </div>
+          <Skeleton className="h-[160px] sm:h-[220px] rounded-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-stack-lg">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[160px] sm:h-[200px]" />
+            ))}
+          </div>
+        </>
+      )}
+      {!loading && (
+        <>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-label-md sm:text-headline-lg font-bold text-on-surface truncate">
             Dompet & Rekening
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {accounts.length} akun &middot; Total: {formatCurrency(totalBalance, currency)}
+          <p className="text-label-xs sm:text-body-md text-on-surface-variant truncate">
+            {accounts.length} akun &middot; Total: <span className={totalBalance < 0 ? 'text-error' : ''}>{formatCurrency(totalBalance, currency)}</span>
           </p>
         </div>
         <button
           onClick={openAddForm}
-          className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
+          className="flex items-center gap-1 sm:gap-2 rounded-xl bg-primary px-3 py-2 sm:px-5 sm:py-2.5 text-label-xs sm:text-label-md font-medium text-on-primary hover:bg-primary-container hover:text-on-primary-container shrink-0"
         >
-          <LuPlus size={18} />
+          <MaterialSymbol icon="add" size={16} />
           <span className="hidden sm:inline">Tambah Akun</span>
         </button>
       </div>
 
-      {/* Total Balance Card */}
-      <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 text-white shadow-lg">
-        <p className="text-sm font-medium text-emerald-100">Total Kekayaan</p>
-        <p className="mt-1 text-3xl font-bold tracking-tight">
-          {formatCurrency(totalBalance, currency)}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {accounts.map((acc) => (
-            <span
-              key={acc.id}
-              className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm"
+      {/* Total Balance Hero */}
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-inverse-surface p-5 sm:p-8 text-on-primary-container flex flex-col justify-center min-h-[160px] sm:min-h-[220px]">
+        <div className="relative z-10 space-y-3 sm:space-y-4">
+          <div>
+            <p className="text-label-xs sm:text-label-md font-bold opacity-80 mb-1">
+              Total Saldo Seluruh Akun
+            </p>
+            <h2 className={`text-headline-md sm:text-display font-bold tabular-nums tracking-tighter break-all ${totalBalance < 0 ? 'text-error' : ''}`}>
+              {formatCurrency(totalBalance, currency)}
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-3 sm:gap-4 pt-1 sm:pt-2">
+            <button
+              onClick={openAddForm}
+              className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-on-primary rounded-xl font-bold text-label-xs sm:text-label-md shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
             >
-              <Icon name={acc.icon} size={12} />
-              {acc.name}
-            </span>
-          ))}
+              <MaterialSymbol icon="add_circle" size={16} />
+              Tambah Akun
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Account List */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {/* Account Cards Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-stack-lg">
         {accounts.map((acc) => (
           <div
             key={acc.id}
-            className="group relative rounded-2xl border border-zinc-200 bg-white p-5 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+            onClick={() => router.push(`/transactions?accountId=${acc.id}`)}
+            className="rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col justify-between min-h-[160px] sm:min-h-[200px] group relative cursor-pointer"
+            style={{ backgroundColor: acc.color + "0d", borderColor: acc.color + "30", borderWidth: 1 }}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl text-white"
-                  style={{ backgroundColor: acc.color }}
+                  className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: acc.color + "20", color: acc.color }}
                 >
-                  <Icon name={acc.icon} size={22} />
+                  <Icon name={acc.icon} size={20} />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-label-md sm:text-headline-md font-bold text-on-surface truncate">
                     {acc.name}
                   </h3>
-                  <span
-                    className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium"
-                    style={{
-                      backgroundColor: getAccountTypeColor(acc.type) + "20",
-                      color: getAccountTypeColor(acc.type),
-                    }}
-                  >
+                  <p className="text-label-xs sm:text-label-sm text-on-surface-variant truncate">
                     {getAccountTypeLabel(acc.type)}
-                  </span>
+                  </p>
                 </div>
               </div>
-              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="flex gap-1 shrink-0">
                 <button
                   onClick={() => openEditForm(acc)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                  className="p-1.5 sm:p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors active:scale-95"
+                  aria-label="Edit akun"
                 >
-                  <LuPencil size={14} />
+                  <MaterialSymbol icon="edit" size={18} />
                 </button>
                 <button
                   onClick={() => handleDelete(acc.id)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-xs text-red-500 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
+                  className="p-1.5 sm:p-2 text-error hover:bg-error-container rounded-lg transition-colors active:scale-95"
+                  aria-label="Hapus akun"
                 >
-                  <LuTrash2 size={14} />
+                  <MaterialSymbol icon="delete" size={18} />
                 </button>
               </div>
             </div>
-            <div className="mt-4 flex items-end justify-between">
-              <div>
-                <p className="text-xs text-zinc-400">Saldo</p>
-                <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                  {formatCurrency(acc.balance, currency)}
-                </p>
-              </div>
-              <div className="flex gap-1">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-100 text-zinc-400 dark:bg-zinc-800">
-                  <LuCircleDollarSign size={14} />
-                </div>
-              </div>
+            <div className="mt-auto pt-3 sm:pt-0">
+              <p className="text-label-xs sm:text-label-sm font-bold text-on-surface-variant mb-0.5 sm:mb-1">
+                Saldo Tersedia
+              </p>
+              <p className={`text-tabular-nums font-bold text-label-md sm:text-headline-md truncate ${acc.balance < 0 ? 'text-error' : 'text-on-surface'}`}>
+                {formatCurrency(acc.balance, currency)}
+              </p>
             </div>
           </div>
         ))}
@@ -236,12 +260,21 @@ export default function AccountsPage() {
         {/* Add Account Card */}
         <button
           onClick={openAddForm}
-          className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-300 p-5 text-zinc-400 transition-all hover:border-emerald-400 hover:text-emerald-500 dark:border-zinc-700 dark:hover:border-emerald-500"
+          className="group border-2 border-dashed border-outline-variant rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-center gap-3 sm:gap-4 min-h-[140px] sm:min-h-[200px] hover:border-primary/50 hover:bg-surface-container-low transition-all"
         >
-          <LuPlus size={24} />
-          <span className="text-sm font-medium">Tambah Akun Baru</span>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+            <MaterialSymbol icon="add" size={20} />
+          </div>
+          <div className="text-center">
+            <p className="text-label-sm sm:text-label-md font-bold text-on-surface">
+              Tambah Akun Baru
+            </p>
+            <p className="text-label-xs sm:text-label-sm text-on-surface-variant">
+              Hubungkan bank atau e-wallet
+            </p>
+          </div>
         </button>
-      </div>
+      </section>
 
       {/* Account Form Modal */}
       <Modal
@@ -254,8 +287,8 @@ export default function AccountsPage() {
       >
         <div className="space-y-4">
           {/* Account Name */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Nama Akun
             </label>
             <input
@@ -263,21 +296,21 @@ export default function AccountsPage() {
               placeholder="e.g. Dompet Cash, BCA, GoPay, dll"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+              className={`w-full bg-surface-container-low border rounded-xl px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant outline-none transition-colors focus:ring-2 focus:ring-primary focus:border-primary ${
                 errors.name
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                  ? "border-error"
+                  : "border-outline-variant"
               }`}
             />
-            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+            {errors.name && <p className="mt-1 text-label-sm text-error">{errors.name}</p>}
           </div>
 
           {/* Account Type */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Tipe Akun
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {ACCOUNT_TYPES.map((t) => (
                 <button
                   key={t.value}
@@ -289,8 +322,8 @@ export default function AccountsPage() {
                   }}
                   className={`rounded-xl py-2.5 text-xs font-medium transition-all ${
                     formType === t.value
-                      ? "bg-emerald-600 text-white shadow-sm"
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400"
+                      ? "bg-primary text-on-primary shadow-sm"
+                      : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
                   }`}
                 >
                   {t.label}
@@ -300,32 +333,33 @@ export default function AccountsPage() {
           </div>
 
           {/* Balance */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               {editAccount ? "Saldo Saat Ini" : "Saldo Awal"}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-500">
-                Rp
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-label-md font-semibold text-on-surface-variant">
+                {getCurrencySymbol(currency)}
               </span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="0"
-                value={formBalance}
-                onChange={(e) => setFormBalance(e.target.value)}
-                className={`w-full rounded-xl border bg-white py-3 pl-12 pr-4 text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-800 dark:text-zinc-50 ${
+                value={formatNumberInput(formBalance)}
+                onChange={(e) => setFormBalance(parseNumberInput(e.target.value))}
+                className={`w-full bg-surface-container-low border rounded-xl py-3 pl-12 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant outline-none transition-colors focus:ring-2 focus:ring-primary focus:border-primary ${
                   errors.balance
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-zinc-300 focus:ring-emerald-500 dark:border-zinc-700"
+                    ? "border-error"
+                    : "border-outline-variant"
                 }`}
               />
             </div>
-            {errors.balance && <p className="mt-1 text-xs text-red-500">{errors.balance}</p>}
+            {errors.balance && <p className="mt-1 text-label-sm text-error">{errors.balance}</p>}
           </div>
 
           {/* Color */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Warna
             </label>
             <div className="flex flex-wrap gap-2">
@@ -334,9 +368,9 @@ export default function AccountsPage() {
                   key={c}
                   type="button"
                   onClick={() => setFormColor(c)}
-                  className={`h-8 w-8 rounded-xl transition-all ${
+                  className={`h-9 w-9 sm:h-8 sm:w-8 rounded-xl transition-all ${
                     formColor === c
-                      ? "ring-2 ring-zinc-900 ring-offset-2 dark:ring-zinc-100 dark:ring-offset-zinc-900"
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-surface-container-low"
                       : ""
                   }`}
                   style={{ backgroundColor: c }}
@@ -346,8 +380,8 @@ export default function AccountsPage() {
           </div>
 
           {/* Icon */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-label-md text-on-surface-variant">
               Ikon
             </label>
             <div className="flex flex-wrap gap-2">
@@ -358,8 +392,8 @@ export default function AccountsPage() {
                   onClick={() => setFormIcon(iconName)}
                   className={`flex items-center justify-center rounded-xl p-2.5 transition-all ${
                     formIcon === iconName
-                      ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-500 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                      ? "bg-primary-container text-on-primary-container ring-2 ring-primary"
+                      : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
                   }`}
                 >
                   <Icon name={iconName} size={18} />
@@ -376,20 +410,37 @@ export default function AccountsPage() {
                 setShowForm(false);
                 setEditAccount(null);
               }}
-              className="flex-1 rounded-xl border border-zinc-300 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400"
+              className="flex-1 rounded-xl border border-outline-variant py-3 text-label-md font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
             >
               Batal
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="flex-1 rounded-xl bg-primary py-3 text-label-md font-semibold text-on-primary shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.98]"
             >
               {editAccount ? "Simpan" : "Tambah"}
             </button>
           </div>
         </div>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title="Hapus Akun"
+        message="Yakin ingin menghapus akun ini?"
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteAccount(deleteConfirm);
+            loadData();
+            showToast("Akun berhasil dihapus");
+          }
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+        </>
+      )}
     </div>
   );
 }
